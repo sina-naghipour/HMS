@@ -1,0 +1,148 @@
+{% extends "admin/base.html" %}
+
+{% block title %}تنظیمات | تنظیمات پرداخت{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'accounts:dashboard' %}">داشبورد</a></li>
+<li class="breadcrumb-item"><a href="{% url 'settings:index' %}">تنظیمات</a></li>
+<li class="breadcrumb-item active">تنظیمات پرداخت</li>
+{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-header" style="background-color: #27374D; color: white;">
+        <h4 class="mb-0">تنظیمات پرداخت</h4>
+    </div>
+
+    <div class="card-body">
+        <form>
+            <div class="row">
+                <!-- Payment Methods -->
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">روش‌های پرداخت</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="enableCash" checked>
+                                <label class="form-check-label" for="enableCash">پرداخت نقدی در محل</label>
+                            </div>
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="enableCard" checked>
+                                <label class="form-check-label" for="enableCard">پرداخت کارتی در محل</label>
+                            </div>
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="enableOnline" checked>
+                                <label class="form-check-label" for="enableOnline">پرداخت آنلاین</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Online Payment Gateways -->
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">درگاه‌های پرداخت</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label">درگاه پرداخت پیش‌فرض</label>
+                                <select class="form-select">
+                                    <option value="zarinpal" selected>زرین پال</option>
+                                    <option value="parsian">پارسیان</option>
+                                    <option value="saman">سامان</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">مرچنت کد زرین پال</label>
+                                <input type="text" class="form-control" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">کلید API پارسیان</label>
+                                <input type="text" class="form-control" placeholder="xxxxxxxxxxxxxxxx">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Policies -->
+                <div class="col-md-12">
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">سیاست‌های پرداخت</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">درصد پیش پرداخت</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" value="30" min="0" max="100">
+                                            <span class="input-group-text">%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">مهلت پرداخت پیش‌پرداخت</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" value="24" min="1">
+                                            <span class="input-group-text">ساعت</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">کارمزد تراکنش</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" value="2.5" min="0" step="0.1">
+                                            <span class="input-group-text">%</span>
+                                        </div>
+                                        <small class="text-muted">این مبلغ به قیمت نهایی اضافه می‌شود</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">شرایط بازپرداخت</label>
+                                <textarea class="form-control" rows="3">در صورت کنسل کردن رزرو تا 48 ساعت قبل از تاریخ اقامت، 90% مبلغ بازپرداخت می‌شود. کنسلی در کمتر از 24 ساعت مشمول بازپرداخت نمی‌شود.</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Save Button -->
+                <div class="col-md-12">
+                    <div class="d-flex justify-content-end">
+                        <button type="reset" class="btn btn-secondary me-2">بازنشانی</button>
+                        <button type="submit" class="btn btn-success">ذخیره تغییرات</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-check-input:checked {
+        background-color: #27374D;
+        border-color: #27374D;
+    }
+    
+    .card {
+        margin-bottom: 1.5rem;
+    }
+    
+    .card-header {
+        padding: 0.75rem 1.25rem;
+    }
+    
+    .input-group-text {
+        min-width: 3rem;
+        justify-content: center;
+    }
+</style>
+{% endblock %}

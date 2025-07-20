@@ -1,0 +1,393 @@
+{% extends "admin/base.html" %}
+
+{% block title %}مدیریت رزروها | رزرو جدید{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'accounts:dashboard' %}">داشبورد</a></li>
+<li class="breadcrumb-item"><a href="{% url 'accounts:dashboard' %}">لیست رزروها</a></li>
+<li class="breadcrumb-item active">رزرو جدید</li>
+{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-header d-flex justify-content-between align-items-center" style="background-color: #27374D; color: white;">
+        <h4 class="mb-0">رزرو جدید</h4>
+        <div>
+            <a href="{% url 'accounts:dashboard' %}" class="btn btn-sm btn-secondary">
+                <i class="fas fa-arrow-right ms-2"></i> بازگشت
+            </a>
+        </div>
+    </div>
+    
+    <div class="card-body">
+        <form method="post" id="bookingForm">
+            {% csrf_token %}
+            
+            <div class="row g-3">
+                <!-- Step 1: Guest Information -->
+                <div class="col-md-12">
+                    <h5 class="border-bottom pb-2 mb-3">اطلاعات مهمان</h5>
+                </div>
+                
+                <div class="col-md-6">
+                    <label for="guestSelect" class="form-label">مهمان</label>
+                    <select class="form-select" id="guestSelect" name="guest" required>
+                        <option value="" selected disabled>انتخاب مهمان</option>
+                        {% for guest in guests %}
+                        <option value="{{ guest.id }}">{{ guest.name }} - {{ guest.phone }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="form-text">اگر مهمان جدید است، <a href="#" data-bs-toggle="modal" data-bs-target="#addGuestModal">اینجا</a> کلیک کنید</div>
+                </div>
+                
+                <div class="col-md-6">
+                    <label for="adults" class="form-label">تعداد بزرگسالان</label>
+                    <input type="number" class="form-control" id="adults" name="adults" min="1" value="1" required>
+                </div>
+                
+                <div class="col-md-6">
+                    <label for="children" class="form-label">تعداد کودکان</label>
+                    <input type="number" class="form-control" id="children" name="children" min="0" value="0">
+                </div>
+                
+                <!-- Step 2: Booking Details -->
+                <div class="col-md-12 mt-4">
+                    <h5 class="border-bottom pb-2 mb-3">جزئیات رزرو</h5>
+                </div>
+                
+                <div class="col-md-4">
+                    <label for="checkInDate" class="form-label">تاریخ ورود</label>
+                    <input type="date" class="form-control" id="checkInDate" name="check_in" required>
+                </div>
+                
+                <div class="col-md-4">
+                    <label for="checkOutDate" class="form-label">تاریخ خروج</label>
+                    <input type="date" class="form-control" id="checkOutDate" name="check_out" required>
+                </div>
+                
+                <div class="col-md-4">
+                    <label for="roomType" class="form-label">نوع اتاق</label>
+                    <select class="form-select" id="roomType" name="room_type">
+                        <option value="" selected>همه انواع</option>
+                        <option value="سوئیت">سوئیت</option>
+                        <option value="دبل">دبل</option>
+                        <option value="سینگل">سینگل</option>
+                        <option value="فامیلی">فامیلی</option>
+                    </select>
+                </div>
+                
+                <!-- Available Rooms -->
+                <div class="col-md-12 mt-3">
+                    <div class="card">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0">اتاق‌های موجود</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row" id="availableRoomsContainer">
+                                <!-- Rooms will be loaded here via AJAX -->
+                                <div class="col-12 text-center py-4">
+                                    <p class="text-muted">لطفاً تاریخ ورود و خروج را انتخاب کنید</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Selected Room Details -->
+                <div class="col-md-12 mt-3 d-none" id="selectedRoomSection">
+                    <div class="card border-primary">
+                        <div class="card-header bg-primary text-white">
+                            <h6 class="mb-0">اتاق انتخاب شده</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-2">
+                                    <strong>شماره اتاق:</strong>
+                                    <p id="selectedRoomNumber">-</p>
+                                </div>
+                                <div class="col-md-2">
+                                    <strong>نوع اتاق:</strong>
+                                    <p id="selectedRoomType">-</p>
+                                </div>
+                                <div class="col-md-2">
+                                    <strong>قیمت شبانه:</strong>
+                                    <p id="selectedRoomPrice">-</p>
+                                </div>
+                                <div class="col-md-3">
+                                    <strong>امکانات:</strong>
+                                    <p id="selectedRoomAmenities">-</p>
+                                </div>
+                                <div class="col-md-3">
+                                    <strong>تعداد شب‌ها:</strong>
+                                    <p id="selectedNights">-</p>
+                                    <strong>مبلغ کل:</strong>
+                                    <p id="selectedTotalAmount">-</p>
+                                </div>
+                            </div>
+                            <input type="hidden" id="selectedRoomId" name="room">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Step 3: Payment & Notes -->
+                <div class="col-md-12 mt-4">
+                    <h5 class="border-bottom pb-2 mb-3">پرداخت و توضیحات</h5>
+                </div>
+                
+                <div class="col-md-4">
+                    <label for="paymentStatus" class="form-label">وضعیت پرداخت</label>
+                    <select class="form-select" id="paymentStatus" name="payment_status">
+                        <option value="unpaid">پرداخت نشده</option>
+                        <option value="partial">پرداخت جزئی</option>
+                        <option value="paid">پرداخت کامل</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-4">
+                    <label for="totalAmount" class="form-label">مبلغ کل (تومان)</label>
+                    <input type="number" class="form-control" id="totalAmount" name="total_amount" readonly>
+                </div>
+                
+                <div class="col-md-4">
+                    <label for="paidAmount" class="form-label">مبلغ پرداخت شده (تومان)</label>
+                    <input type="number" class="form-control" id="paidAmount" name="paid_amount" min="0" value="0">
+                </div>
+                
+                <div class="col-md-12">
+                    <label for="bookingNotes" class="form-label">توضیحات</label>
+                    <textarea class="form-control" id="bookingNotes" name="notes" rows="3"></textarea>
+                </div>
+                
+                <!-- Submit Button -->
+                <div class="col-md-12 mt-4">
+                    <button type="submit" class="btn btn-success w-100 py-2">
+                        <i class="fas fa-save ms-2"></i> ثبت رزرو
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Add Guest Modal -->
+<div class="modal fade" id="addGuestModal" tabindex="-1" aria-labelledby="addGuestModalLabel" aria-hidden="true" dir="rtl">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title" id="addGuestModalLabel">مهمان جدید</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="guestForm" action="{% url 'accounts:dashboard' %}" method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="guestName" class="form-label">نام کامل</label>
+                        <input type="text" class="form-control" id="guestName" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="guestPhone" class="form-label">تلفن</label>
+                        <input type="tel" class="form-control" id="guestPhone" name="phone" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="guestEmail" class="form-label">ایمیل (اختیاری)</label>
+                        <input type="email" class="form-control" id="guestEmail" name="email">
+                    </div>
+                    <div class="mb-3">
+                        <label for="guestNationalId" class="form-label">کد ملی (اختیاری)</label>
+                        <input type="text" class="form-control" id="guestNationalId" name="national_id">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                    <button type="submit" class="btn btn-info">ذخیره مهمان</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Load available rooms when dates change
+        $('#checkInDate, #checkOutDate, #roomType').change(function() {
+            const checkIn = $('#checkInDate').val();
+            const checkOut = $('#checkOutDate').val();
+            const roomType = $('#roomType').val();
+            
+            if (checkIn && checkOut) {
+                // Show loading state
+                $('#availableRoomsContainer').html(`
+                    <div class="col-12 text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">در حال دریافت لیست اتاق‌ها...</p>
+                    </div>
+                `);
+                
+                // Simulate AJAX call (replace with actual AJAX call)
+                setTimeout(() => {
+                    // This would be replaced with actual data from your backend
+                    const sampleRooms = [
+                        {
+                            id: 101,
+                            number: '101',
+                            type: 'سوئیت',
+                            price: '1,500,000',
+                            amenities: ['تلویزیون', 'مینی بار', 'اینترنت'],
+                            capacity: 2,
+                            is_vip: true
+                        },
+                        {
+                            id: 102,
+                            number: '102',
+                            type: 'دبل',
+                            price: '850,000',
+                            amenities: ['تلویزیون', 'اینترنت'],
+                            capacity: 2,
+                            is_vip: false
+                        },
+                        {
+                            id: 201,
+                            number: '201',
+                            type: 'سوئیت',
+                            price: '2,200,000',
+                            amenities: ['تلویزیون', 'مینی بار', 'اینترنت', 'جکوزی'],
+                            capacity: 4,
+                            is_vip: true
+                        }
+                    ];
+                    
+                    // Filter by room type if selected
+                    const filteredRooms = roomType ? 
+                        sampleRooms.filter(room => room.type === roomType) : 
+                        sampleRooms;
+                    
+                    // Display rooms
+                    if (filteredRooms.length > 0) {
+                        let roomsHtml = '';
+                        filteredRooms.forEach(room => {
+                            roomsHtml += `
+                                <div class="col-md-4 mb-3">
+                                    <div class="card room-card ${room.is_vip ? 'border-warning' : ''}" 
+                                         data-room-id="${room.id}" 
+                                         data-room-number="${room.number}"
+                                         data-room-type="${room.type}"
+                                         data-room-price="${room.price.replace(',', '')}"
+                                         data-room-amenities="${room.amenities.join(', ')}">
+                                        <div class="card-body">
+                                            <h5 class="card-title">
+                                                اتاق ${room.number}
+                                                ${room.is_vip ? '<span class="badge bg-warning text-dark float-start">VIP</span>' : ''}
+                                            </h5>
+                                            <p class="card-text">
+                                                <strong>نوع:</strong> ${room.type}<br>
+                                                <strong>قیمت:</strong> ${room.price} تومان<br>
+                                                <strong>ظرفیت:</strong> ${room.capacity} نفر<br>
+                                                <strong>امکانات:</strong> ${room.amenities.join('، ')}
+                                            </p>
+                                            <button class="btn btn-sm btn-primary select-room-btn w-100">
+                                                انتخاب این اتاق
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        $('#availableRoomsContainer').html(roomsHtml);
+                    } else {
+                        $('#availableRoomsContainer').html(`
+                            <div class="col-12 text-center py-4">
+                                <p class="text-muted">هیچ اتاقی با مشخصات انتخابی شما یافت نشد</p>
+                            </div>
+                        `);
+                    }
+                }, 1000);
+            }
+        });
+        
+        // Handle room selection
+        $(document).on('click', '.select-room-btn', function() {
+            const card = $(this).closest('.room-card');
+            const roomId = card.data('room-id');
+            const roomNumber = card.data('room-number');
+            const roomType = card.data('room-type');
+            const roomPrice = card.data('room-price');
+            const roomAmenities = card.data('room-amenities');
+            
+            // Calculate nights and total amount
+            const checkIn = new Date($('#checkInDate').val());
+            const checkOut = new Date($('#checkOutDate').val());
+            const nights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24));
+            const totalAmount = nights * roomPrice;
+            
+            // Update selected room section
+            $('#selectedRoomNumber').text(roomNumber);
+            $('#selectedRoomType').text(roomType);
+            $('#selectedRoomPrice').text(roomPrice.toLocaleString() + ' تومان');
+            $('#selectedRoomAmenities').text(roomAmenities);
+            $('#selectedNights').text(nights + ' شب');
+            $('#selectedTotalAmount').text(totalAmount.toLocaleString() + ' تومان');
+            $('#selectedRoomId').val(roomId);
+            $('#totalAmount').val(totalAmount);
+            
+            // Show selected room section
+            $('#selectedRoomSection').removeClass('d-none');
+            
+            // Scroll to selected room section
+            $('html, body').animate({
+                scrollTop: $('#selectedRoomSection').offset().top - 100
+            }, 500);
+        });
+        
+        // Handle guest form submission
+        $('#guestForm').submit(function(e) {
+            e.preventDefault();
+            const form = $(this);
+            
+            // Simulate AJAX submission (replace with actual AJAX)
+            setTimeout(() => {
+                const newGuest = {
+                    id: Math.floor(Math.random() * 1000) + 100,
+                    name: $('#guestName').val(),
+                    phone: $('#guestPhone').val()
+                };
+                
+                // Add to guest select
+                $('#guestSelect').append(`
+                    <option value="${newGuest.id}" selected>
+                        ${newGuest.name} - ${newGuest.phone}
+                    </option>
+                `);
+                
+                // Close modal and reset form
+                $('#addGuestModal').modal('hide');
+                form.trigger('reset');
+            }, 1000);
+        });
+    });
+</script>
+
+<style>
+    .room-card {
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+    
+    .room-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .select-room-btn {
+        transition: all 0.2s;
+    }
+    
+    .select-room-btn:hover {
+        transform: scale(1.02);
+    }
+</style>
+{% endblock %}

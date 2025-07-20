@@ -1,0 +1,83 @@
+{% extends "admin/base.html" %}
+
+{% block title %}داشبورد مدیریت{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">داشبورد مدیریت</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary">خروجی Excel</button>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-white mb-3" style="background-color: #526D82;">
+            <div class="card-body">
+                <h5 class="card-title">میزان اشغال</h5>
+                <h2 class="card-text">۷۸٪</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white mb-3" style="background-color: #27374D;">
+            <div class="card-body">
+                <h5 class="card-title">ورودی‌های امروز</h5>
+                <h2 class="card-text">۱۲</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white mb-3" style="background-color: #9DB2BF;">
+            <div class="card-body">
+                <h5 class="card-title">اتاق‌های خالی</h5>
+                <h2 class="card-text">۲۴</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white mb-3" style="background-color: #4361ee;">
+            <div class="card-body">
+                <h5 class="card-title">درآمد ماهانه</h5>
+                <h2 class="card-text">۴۲,۵۶۰ تومان</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header text-white" style="background-color: #526D82;">
+                <h5>نمودار میزان اشغال</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="occupancyChart" height="250"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header text-white" style="background-color: #27374D;">
+                <h5>آخرین رزروها</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    {% for booking in recent_bookings %}
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">اتاق #{{ booking.room.number }}</h6>
+                            <small>{{ booking.check_in|date:"M d" }}</small>
+                        </div>
+                        <p class="mb-1">{{ booking.guest.name }}</p>
+                        <small>وضعیت: {{ booking.get_status_display }}</small>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

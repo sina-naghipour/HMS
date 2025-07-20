@@ -1,0 +1,184 @@
+{% extends "admin/base.html" %}
+
+{% block title %}تنظیمات | تنظیمات ایمیل{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'accounts:dashboard' %}">داشبورد</a></li>
+<li class="breadcrumb-item"><a href="{% url 'settings:index' %}">تنظیمات</a></li>
+<li class="breadcrumb-item active">تنظیمات ایمیل</li>
+{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-header" style="background-color: #27374D; color: white;">
+        <h4 class="mb-0">تنظیمات ایمیل</h4>
+    </div>
+
+    <div class="card-body">
+        <form>
+            <div class="row">
+                <!-- SMTP Settings -->
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">تنظیمات SMTP</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label">سرور SMTP</label>
+                                <input type="text" class="form-control" value="mail.royalhotel.com">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">پورت</label>
+                                <input type="number" class="form-control" value="587">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">نام کاربری</label>
+                                <input type="text" class="form-control" value="noreply@royalhotel.com">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">کلمه عبور</label>
+                                <input type="password" class="form-control" placeholder="••••••••">
+                            </div>
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="enableSSL" checked>
+                                <label class="form-check-label" for="enableSSL">فعال کردن SSL/TLS</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Email Templates -->
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">تنظیمات ارسال</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label">آدرس ایمیل فرستنده</label>
+                                <input type="email" class="form-control" value="noreply@royalhotel.com">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">نام فرستنده</label>
+                                <input type="text" class="form-control" value="هتل رویال تهران">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">ایمیل پشتیبانی</label>
+                                <input type="email" class="form-control" value="support@royalhotel.com">
+                            </div>
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="sendConfirmation" checked>
+                                <label class="form-check-label" for="sendConfirmation">ارسال ایمیل تایید رزرو</label>
+                            </div>
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="sendReminder" checked>
+                                <label class="form-check-label" for="sendReminder">ارسال یادآوری قبل از اقامت</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Email Templates -->
+                <div class="col-md-12">
+                    <div class="card mb-4">
+                        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">قالب‌های ایمیل</h5>
+                            <button class="btn btn-sm btn-primary">مشاهده همه قالب‌ها</button>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="card template-card">
+                                        <div class="card-body">
+                                            <h6 class="card-title">تایید رزرو</h6>
+                                            <p class="card-text small text-muted">ارسال پس از تکمیل رزرو</p>
+                                            <a href="#" class="btn btn-sm btn-outline-primary w-100">ویرایش قالب</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="card template-card">
+                                        <div class="card-body">
+                                            <h6 class="card-title">یادآوری اقامت</h6>
+                                            <p class="card-text small text-muted">ارسال 24 ساعت قبل از اقامت</p>
+                                            <a href="#" class="btn btn-sm btn-outline-primary w-100">ویرایش قالب</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="card template-card">
+                                        <div class="card-body">
+                                            <h6 class="card-title">رسید پرداخت</h6>
+                                            <p class="card-text small text-muted">ارسال پس از تکمیل پرداخت</p>
+                                            <a href="#" class="btn btn-sm btn-outline-primary w-100">ویرایش قالب</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Test Email -->
+                <div class="col-md-12">
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">تست ارسال ایمیل</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">آدرس ایمیل تست</label>
+                                        <input type="email" class="form-control" placeholder="test@example.com">
+                                    </div>
+                                </div>
+                                <div class="col-md-6 d-flex align-items-end">
+                                    <button type="button" class="btn btn-info w-100">
+                                        <i class="fas fa-paper-plane me-2"></i> ارسال ایمیل تست
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Save Button -->
+                <div class="col-md-12">
+                    <div class="d-flex justify-content-end">
+                        <button type="reset" class="btn btn-secondary me-2">بازنشانی</button>
+                        <button type="submit" class="btn btn-success">ذخیره تغییرات</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-check-input:checked {
+        background-color: #27374D;
+        border-color: #27374D;
+    }
+    
+    .card {
+        margin-bottom: 1.5rem;
+    }
+    
+    .card-header {
+        padding: 0.75rem 1.25rem;
+    }
+    
+    .template-card {
+        transition: all 0.2s;
+    }
+    
+    .template-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+</style>
+{% endblock %}

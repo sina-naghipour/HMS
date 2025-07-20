@@ -1,0 +1,228 @@
+{% extends "admin/base.html" %}
+
+{% block title %}مدیریت اتاق‌ها | جزئیات اتاق{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'accounts:dashboard' %}">داشبورد</a></li>
+<li class="breadcrumb-item"><a href="{% url 'accounts:dashboard' %}">لیست اتاق‌ها</a></li>
+<li class="breadcrumb-item active">جزئیات اتاق</li>
+{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-header" style="background-color: #27374D; color: white;">
+        <h4 class="mb-0">جزئیات اتاق شماره {{ room.number }}</h4>
+    </div>
+
+    <div class="card-body">
+        <div class="row">
+            <!-- Room Information -->
+            <div class="col-md-8">
+                <div class="card mb-4">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">اطلاعات اصلی</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>شماره اتاق:</strong> {{ room.number }}</p>
+                                <p><strong>نوع اتاق:</strong> {{ room.type }}</p>
+                                <p><strong>وضعیت:</strong> 
+                                    <span class="badge 
+                                        {% if room.status == 'available' %}bg-success
+                                        {% elif room.status == 'booked' %}bg-primary
+                                        {% elif room.status == 'occupied' %}bg-info
+                                        {% else %}bg-danger
+                                        {% endif %}">
+                                        {{ room.get_status_display }}
+                                    </span>
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>قیمت شبانه:</strong> {{ room.price|floatformat:"0" }} تومان</p>
+                                <p><strong>ظرفیت:</strong> {{ room.capacity }} نفر</p>
+                                <p><strong>وضعیت VIP:</strong> 
+                                    {% if room.is_vip %}
+                                        <span class="badge bg-warning text-dark">VIP</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">معمولی</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Amenities -->
+                <div class="card mb-4">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">امکانات</h5>
+                    </div>
+                    <div class="card-body">
+                        {% for amenity in room.amenities.all %}
+                            <span class="badge bg-secondary me-2">{{ amenity.name }}</span>
+                        {% empty %}
+                            <p class="text-muted">امکاناتی ثبت نشده است</p>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div class="card">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">توضیحات</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if room.description %}
+                            <p>{{ room.description }}</p>
+                        {% else %}
+                            <p class="text-muted">توضیحاتی ثبت نشده است</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar - Actions and Status -->
+            <div class="col-md-4">
+                <!-- Room Image -->
+                <div class="card mb-4">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">تصویر اتاق</h5>
+                    </div>
+                    <div class="card-body text-center">
+                        {% if room.image %}
+                            <img src="{{ room.image.url }}" alt="Room {{ room.number }}" class="img-fluid rounded">
+                        {% else %}
+                            <div class="bg-light p-5 text-muted rounded">
+                                <i class="fas fa-image fa-3x mb-3"></i>
+                                <p>تصویری موجود نیست</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="card mb-4">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">عملیات سریع</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <a href="{% url 'accounts:dashboard' %}" class="btn btn-warning">
+                                <i class="fas fa-edit me-2"></i> ویرایش اطلاعات
+                            </a>
+                            <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                                <i class="fas fa-trash me-2"></i> حذف اتاق
+                            </button>
+                            
+                            {% if room.status == 'available' %}
+                                <a href="#" class="btn btn-primary">
+                                    <i class="fas fa-calendar-check me-2"></i> رزرو اتاق
+                                </a>
+                            {% elif room.status == 'booked' %}
+                                <a href="#" class="btn btn-success">
+                                    <i class="fas fa-key me-2"></i> تحویل اتاق
+                                </a>
+                            {% endif %}
+                            
+                            {% if room.status != 'maintenance' %}
+                                <button class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#maintenanceModal">
+                                    <i class="fas fa-tools me-2"></i> ثبت تعمیرات
+                                </button>
+                            {% else %}
+                                <button class="btn btn-info">
+                                    <i class="fas fa-check me-2"></i> اتمام تعمیرات
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Current Reservation -->
+                {% if room.current_reservation %}
+                <div class="card">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">رزرو فعلی</h5>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>مهمان:</strong> {{ room.current_reservation.guest.full_name }}</p>
+                        <p><strong>تاریخ ورود:</strong> {{ room.current_reservation.check_in|date:"Y/m/d" }}</p>
+                        <p><strong>تاریخ خروج:</strong> {{ room.current_reservation.check_out|date:"Y/m/d" }}</p>
+                        <a href="#" class="btn btn-sm btn-outline-primary">مشاهده رزرو</a>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true" dir="rtl">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteModalLabel">حذف اتاق</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>آیا از حذف اتاق شماره {{ room.number }} مطمئن هستید؟ این عمل قابل بازگشت نیست.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                <form method="post" action="{% url 'accounts:dashboard' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">حذف اتاق</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Maintenance Modal -->
+<div class="modal fade" id="maintenanceModal" tabindex="-1" aria-labelledby="maintenanceModalLabel" aria-hidden="true" dir="rtl">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title" id="maintenanceModalLabel">ثبت تعمیرات</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" action="{% url 'accounts:dashboard' %}">
+                <div class="modal-body">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="maintenanceReason" class="form-label">دلیل تعمیرات</label>
+                        <textarea class="form-control" id="maintenanceReason" name="reason" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="estimatedTime" class="form-label">مدت زمان تخمینی (روز)</label>
+                        <input type="number" class="form-control" id="estimatedTime" name="days" min="1" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                    <button type="submit" class="btn btn-dark">ثبت تعمیرات</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .badge {
+        font-size: 0.85rem;
+        padding: 0.35em 0.65em;
+    }
+    
+    .card-header h5 {
+        font-weight: 600;
+    }
+    
+    .img-fluid {
+        max-height: 250px;
+        object-fit: cover;
+    }
+</style>
+{% endblock %}

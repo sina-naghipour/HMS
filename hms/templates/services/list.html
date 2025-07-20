@@ -1,0 +1,285 @@
+{% extends "admin/base.html" %}
+
+{% block title %}مدیریت خدمات | لیست خدمات اضافی{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'accounts:dashboard' %}">داشبورد</a></li>
+<li class="breadcrumb-item active">لیست خدمات اضافی</li>
+{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-header d-flex justify-content-between align-items-center" style="background-color: #27374D; color: white;">
+        <h4 class="mb-0">لیست خدمات اضافی</h4>
+        <div>
+            <a href="#" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#addServiceModal">
+                <i class="fas fa-plus ms-2"></i> خدمت جدید
+            </a>
+        </div>
+    </div>
+
+    <div class="card-body">
+        <!-- Filter and Search Section -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card filter-card">
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label">جستجو</label>
+                                <input type="text" class="form-control" id="searchInput" placeholder="جستجو بر اساس نام خدمت...">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">دسته بندی</label>
+                                <select class="form-select" id="categoryFilter">
+                                    <option value="">همه</option>
+                                    <option value="food">رستوران</option>
+                                    <option value="spa">اسپا و ماساژ</option>
+                                    <option value="transport">حمل و نقل</option>
+                                    <option value="other">سایر</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">وضعیت</label>
+                                <select class="form-select" id="statusFilter">
+                                    <option value="">همه</option>
+                                    <option value="active">فعال</option>
+                                    <option value="inactive">غیرفعال</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2 d-flex align-items-end">
+                                <button id="resetFilters" class="btn btn-outline-danger w-100">
+                                    <i class="fas fa-times"></i> بازنشانی
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Services Table -->
+        <div class="table-responsive">
+            <table class="table table-hover align-middle" id="servicesTable">
+                <thead class="table-dark">
+                    <tr>
+                        <th width="50px">#</th>
+                        <th>نام خدمت</th>
+                        <th width="150px">دسته بندی</th>
+                        <th width="150px">قیمت</th>
+                        <th width="120px">وضعیت</th>
+                        <th width="150px">عملیات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Sample Service 1 -->
+                    <tr data-category="food" data-status="active">
+                        <td>1</td>
+                        <td>
+                            <strong>صبحانه بوفه</strong>
+                            <p class="text-muted small mb-0">صبحانه کامل با انواع نان، پنیر، مربا و تخم مرغ</p>
+                        </td>
+                        <td>رستوران</td>
+                        <td>150,000 تومان</td>
+                        <td><span class="badge bg-success">فعال</span></td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="#" class="btn btn-info" title="مشاهده">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="#" class="btn btn-warning" title="ویرایش">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button class="btn btn-danger" title="غیرفعال کردن">
+                                    <i class="fas fa-ban"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    
+                    <!-- Sample Service 2 -->
+                    <tr data-category="spa" data-status="active">
+                        <td>2</td>
+                        <td>
+                            <strong>ماساژ سوئدی</strong>
+                            <p class="text-muted small mb-0">ماساژ آرامش بخش به مدت 60 دقیقه</p>
+                        </td>
+                        <td>اسپا و ماساژ</td>
+                        <td>450,000 تومان</td>
+                        <td><span class="badge bg-success">فعال</span></td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="#" class="btn btn-info" title="مشاهده">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="#" class="btn btn-warning" title="ویرایش">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button class="btn btn-danger" title="غیرفعال کردن">
+                                    <i class="fas fa-ban"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    
+                    <!-- Sample Service 3 -->
+                    <tr data-category="transport" data-status="inactive">
+                        <td>3</td>
+                        <td>
+                            <strong>ترانسفر فرودگاهی</strong>
+                            <p class="text-muted small mb-0">حمل و نقل از فرودگاه به هتل</p>
+                        </td>
+                        <td>حمل و نقل</td>
+                        <td>300,000 تومان</td>
+                        <td><span class="badge bg-secondary">غیرفعال</span></td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="#" class="btn btn-info" title="مشاهده">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="#" class="btn btn-warning" title="ویرایش">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button class="btn btn-success" title="فعال کردن">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" aria-label="Previous">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item">
+                    <a class="page-link" href="#" aria-label="Next">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<!-- Add Service Modal -->
+<div class="modal fade" id="addServiceModal" tabindex="-1" aria-labelledby="addServiceModalLabel" aria-hidden="true" dir="rtl">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color: #27374D; color: white;">
+                <h5 class="modal-title" id="addServiceModalLabel">افزودن خدمت جدید</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="mb-3">
+                        <label class="form-label">نام خدمت</label>
+                        <input type="text" class="form-control" placeholder="نام خدمت" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">دسته بندی</label>
+                        <select class="form-select" required>
+                            <option value="" selected disabled>انتخاب کنید</option>
+                            <option value="food">رستوران</option>
+                            <option value="spa">اسپا و ماساژ</option>
+                            <option value="transport">حمل و نقل</option>
+                            <option value="other">سایر</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">قیمت (تومان)</label>
+                        <input type="number" class="form-control" placeholder="قیمت" min="0" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">توضیحات</label>
+                        <textarea class="form-control" rows="3" placeholder="توضیحات خدمت..."></textarea>
+                    </div>
+                    
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" id="serviceStatus" checked>
+                        <label class="form-check-label" for="serviceStatus">فعال</label>
+                    </div>
+                    
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                        <button type="submit" class="btn btn-success">ذخیره خدمت</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Filter functionality
+        function filterServices() {
+            const searchText = $('#searchInput').val().toLowerCase();
+            const categoryFilter = $('#categoryFilter').val();
+            const statusFilter = $('#statusFilter').val();
+            
+            $('#servicesTable tbody tr').each(function() {
+                const serviceText = $(this).text().toLowerCase();
+                const category = $(this).data('category');
+                const status = $(this).data('status');
+                
+                const matchesSearch = searchText === '' || serviceText.includes(searchText);
+                const matchesCategory = categoryFilter === '' || category === categoryFilter;
+                const matchesStatus = statusFilter === '' || status === statusFilter;
+                
+                if (matchesSearch && matchesCategory && matchesStatus) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+        }
+        
+        // Apply filters on change
+        $('#searchInput, #categoryFilter, #statusFilter').on('input change', filterServices);
+        
+        // Reset filters
+        $('#resetFilters').click(function() {
+            $('#searchInput').val('');
+            $('#categoryFilter').val('');
+            $('#statusFilter').val('');
+            filterServices();
+        });
+    });
+</script>
+
+<style>
+    .filter-card {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+    }
+    
+    #servicesTable tbody tr {
+        transition: all 0.2s;
+    }
+    
+    #servicesTable tbody tr:hover {
+        background-color: rgba(221, 230, 237, 0.5);
+    }
+    
+    .badge {
+        margin-left: 5px;
+        font-weight: 500;
+    }
+</style>
+{% endblock %}

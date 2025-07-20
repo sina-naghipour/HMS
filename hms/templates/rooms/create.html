@@ -1,0 +1,200 @@
+{% extends "admin/base.html" %}
+
+{% block title %}مدیریت اتاق‌ها | افزودن اتاق جدید{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="#">داشبورد</a></li>
+<li class="breadcrumb-item"><a href="#">لیست اتاق‌ها</a></li>
+<li class="breadcrumb-item active">افزودن اتاق جدید</li>
+{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-header" style="background-color: #27374D; color: white;">
+        <h4 class="mb-0">افزودن اتاق جدید</h4>
+    </div>
+
+    <div class="card-body">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="row g-3">
+                <!-- Basic Information -->
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">اطلاعات پایه</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label for="number" class="form-label">شماره اتاق</label>
+                                <input type="text" class="form-control" id="number" name="number" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="room_type" class="form-label">نوع اتاق</label>
+                                <select class="form-select" id="room_type" name="room_type" required>
+                                    <option value="" selected disabled>انتخاب کنید</option>
+                                    <option value="1">سوئیت</option>
+                                    <option value="2">دبل</option>
+                                    <option value="3">سینگل</option>
+                                    <option value="4">فامیلی</option>
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="capacity" class="form-label">ظرفیت</label>
+                                <input type="number" class="form-control" id="capacity" name="capacity" min="1" required value="2">
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="price" class="form-label">قیمت شبانه (تومان)</label>
+                                <input type="number" class="form-control" id="price" name="price" min="0" required value="1000000">
+                            </div>
+                            
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="is_vip" name="is_vip">
+                                <label class="form-check-label" for="is_vip">اتاق VIP</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Image and Status -->
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">تصویر و وضعیت</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label for="image" class="form-label">تصویر اتاق</label>
+                                <input type="file" class="form-control" id="image" name="image">
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="status" class="form-label">وضعیت</label>
+                                <select class="form-select" id="status" name="status" required>
+                                    <option value="available" selected>خالی</option>
+                                    <option value="booked">رزرو شده</option>
+                                    <option value="occupied">اشغال شده</option>
+                                    <option value="maintenance">در تعمیرات</option>
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="floor" class="form-label">طبقه</label>
+                                <select class="form-select" id="floor" name="floor" required>
+                                    <option value="1">طبقه 1</option>
+                                    <option value="2" selected>طبقه 2</option>
+                                    <option value="3">طبقه 3</option>
+                                    <option value="4">طبقه 4</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Amenities -->
+                <div class="col-md-12">
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">امکانات</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="amenities" id="amenity_1" value="1" checked>
+                                        <label class="form-check-label" for="amenity_1">تلویزیون</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="amenities" id="amenity_2" value="2">
+                                        <label class="form-check-label" for="amenity_2">مینی بار</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="amenities" id="amenity_3" value="3" checked>
+                                        <label class="form-check-label" for="amenity_3">اینترنت</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="amenities" id="amenity_4" value="4">
+                                        <label class="form-check-label" for="amenity_4">جکوزی</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="amenities" id="amenity_5" value="5">
+                                        <label class="form-check-label" for="amenity_5">تهویه مطبوع</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="amenities" id="amenity_6" value="6">
+                                        <label class="form-check-label" for="amenity_6">صندوق امانات</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="amenities" id="amenity_7" value="7">
+                                        <label class="form-check-label" for="amenity_7">سشوار</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="amenities" id="amenity_8" value="8">
+                                        <label class="form-check-label" for="amenity_8">چای ساز</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Description -->
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">توضیحات</h5>
+                        </div>
+                        <div class="card-body">
+                            <textarea class="form-control" id="description" name="description" rows="3">اتاقی دلباز با نمای زیبا به سمت باغ</textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-4 d-flex justify-content-between">
+                <a href="#" class="btn btn-secondary">انصراف</a>
+                <button type="submit" class="btn btn-success">ذخیره اتاق</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-check-input:checked {
+        background-color: #27374D;
+        border-color: #27374D;
+    }
+    
+    .card {
+        margin-bottom: 1.5rem;
+    }
+    
+    .card-header {
+        padding: 0.75rem 1.25rem;
+    }
+    
+    textarea {
+        min-height: 120px;
+    }
+</style>
+{% endblock %}

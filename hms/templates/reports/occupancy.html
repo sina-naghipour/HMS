@@ -1,0 +1,208 @@
+{% extends "admin/base.html" %}
+
+{% block title %}گزارشات | گزارش اشغال اتاق‌ها{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'accounts:dashboard' %}">داشبورد</a></li>
+<li class="breadcrumb-item"><a href="{% url 'reports:index' %}">گزارشات</a></li>
+<li class="breadcrumb-item active">گزارش اشغال</li>
+{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-header" style="background-color: #27374D; color: white;">
+        <h4 class="mb-0">گزارش اشغال اتاق‌ها</h4>
+    </div>
+
+    <div class="card-body">
+        <!-- Filters -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card filter-card">
+                    <div class="card-body">
+                        <form>
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <label class="form-label">از تاریخ</label>
+                                    <input type="text" class="form-control datepicker" placeholder="1402/01/01">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">تا تاریخ</label>
+                                    <input type="text" class="form-control datepicker" placeholder="1402/06/30">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">نوع اتاق</label>
+                                    <select class="form-select">
+                                        <option value="">همه</option>
+                                        <option value="suite">سوئیت</option>
+                                        <option value="double">دبل</option>
+                                        <option value="single">سینگل</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3 d-flex align-items-end">
+                                    <button type="submit" class="btn btn-primary w-100">
+                                        <i class="fas fa-filter me-2"></i> اعمال فیلتر
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card text-white mb-3" style="background-color: #4361ee;">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">میانگین اشغال</h5>
+                        <h2 class="card-text">78%</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-white mb-3" style="background-color: #4bb543;">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">بیشترین اشغال</h5>
+                        <h2 class="card-text">سوئیت ۲۰۱</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-white mb-3" style="background-color: #ffcc00;">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">کمترین اشغال</h5>
+                        <h2 class="card-text">سینگل ۱۰۳</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart -->
+        <div class="card mb-4">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">نمودار اشغال ماهانه</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container" style="height: 300px;">
+                    <canvas id="occupancyChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Report -->
+        <div class="card">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">گزارش تفصیلی</h5>
+                <button class="btn btn-sm btn-success">
+                    <i class="fas fa-file-excel me-2"></i> خروجی Excel
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>نوع اتاق</th>
+                                <th>تعداد اتاق</th>
+                                <th>روزهای اشغال</th>
+                                <th>درصد اشغال</th>
+                                <th>میانگین قیمت</th>
+                                <th>درآمد</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>سوئیت</td>
+                                <td>5</td>
+                                <td>890</td>
+                                <td>85%</td>
+                                <td>2,500,000 تومان</td>
+                                <td>2,225,000,000 تومان</td>
+                            </tr>
+                            <tr>
+                                <td>دبل</td>
+                                <td>10</td>
+                                <td>1,450</td>
+                                <td>79%</td>
+                                <td>1,200,000 تومان</td>
+                                <td>1,740,000,000 تومان</td>
+                            </tr>
+                            <tr>
+                                <td>سینگل</td>
+                                <td>8</td>
+                                <td>980</td>
+                                <td>67%</td>
+                                <td>800,000 تومان</td>
+                                <td>784,000,000 تومان</td>
+                            </tr>
+                        </tbody>
+                        <tfoot class="table-dark">
+                            <tr>
+                                <th>جمع کل</th>
+                                <th>23</th>
+                                <th>3,320</th>
+                                <th>78%</th>
+                                <th>1,500,000 تومان</th>
+                                <th>4,749,000,000 تومان</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Sample Chart.js implementation
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('occupancyChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور'],
+                datasets: [{
+                    label: 'درصد اشغال',
+                    data: [65, 72, 80, 85, 82, 78],
+                    backgroundColor: '#4361ee',
+                    borderColor: '#4361ee',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        title: {
+                            display: true,
+                            text: 'درصد اشغال'
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+
+<style>
+    .filter-card {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+    }
+    
+    .chart-container {
+        position: relative;
+    }
+    
+    .table tfoot th {
+        font-weight: bold;
+    }
+</style>
+{% endblock %}

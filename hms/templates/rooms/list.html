@@ -1,0 +1,503 @@
+{% extends "admin/base.html" %}
+
+{% block title %}مدیریت اتاق‌ها | لیست اتاق‌ها{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'accounts:dashboard' %}">داشبورد</a></li>
+<li class="breadcrumb-item active">لیست اتاق‌ها</li>
+{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-header d-flex justify-content-between align-items-center" style="background-color: #27374D; color: white;">
+        <h4 class="mb-0">لیست اتاق‌ها</h4>
+        <div>
+            <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#addRoomModal">
+                <i class="fas fa-plus ms-2"></i> اتاق جدید
+            </button>
+        </div>
+    </div>
+
+    <div class="card-body">
+        <!-- Filter and Search Section -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card filter-card">
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label class="form-label">جستجو</label>
+                                <input type="text" class="form-control" id="searchInput" placeholder="جستجو بر اساس شماره یا نوع اتاق...">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">وضعیت</label>
+                                <select class="form-select" id="statusFilter">
+                                    <option value="">همه</option>
+                                    <option value="available">خالی</option>
+                                    <option value="booked">رزرو شده</option>
+                                    <option value="occupied">اشغال شده</option>
+                                    <option value="maintenance">در تعمیرات</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">نوع اتاق</label>
+                                <select class="form-select" id="typeFilter">
+                                    <option value="">همه</option>
+                                    <option value="سوئیت">سوئیت</option>
+                                    <option value="دبل">دبل</option>
+                                    <option value="سینگل">سینگل</option>
+                                    <option value="فامیلی">فامیلی</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">ظرفیت</label>
+                                <select class="form-select" id="capacityFilter">
+                                    <option value="">همه</option>
+                                    <option value="1">1 نفر</option>
+                                    <option value="2">2 نفر</option>
+                                    <option value="3">3 نفر</option>
+                                    <option value="4">4+ نفر</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">ویژه</label>
+                                <select class="form-select" id="vipFilter">
+                                    <option value="">همه</option>
+                                    <option value="true">VIP</option>
+                                    <option value="false">معمولی</option>
+                                </select>
+                            </div>
+                            <div class="col-md-1 d-flex align-items-end">
+                                <button id="resetFilters" class="btn btn-outline-danger w-100">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Room Status Summary Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card text-white mb-3" style="background-color: #4361ee;">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">کل اتاق‌ها</h5>
+                        <h2 class="card-text" id="totalRooms">24</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white mb-3" style="background-color: #4bb543;">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">اتاق‌های خالی</h5>
+                        <h2 class="card-text" id="availableRooms">12</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white mb-3" style="background-color: #ffcc00;">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">رزرو شده</h5>
+                        <h2 class="card-text" id="bookedRooms">8</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white mb-3" style="background-color: #ff3333;">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">در تعمیرات</h5>
+                        <h2 class="card-text" id="maintenanceRooms">4</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rooms Table -->
+        <div class="table-responsive">
+            <table class="table table-hover align-middle" id="roomsTable">
+                <thead class="table-dark">
+                    <tr>
+                        <th width="50px">#</th>
+                        <th width="120px">شماره اتاق</th>
+                        <th>نوع اتاق</th>
+                        <th width="120px">وضعیت</th>
+                        <th width="150px">قیمت (شبانه)</th>
+                        <th width="100px">ظرفیت</th>
+                        <th>امکانات</th>
+                        <th width="150px">عملیات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Sample Room 1 -->
+                    <tr data-status="available" data-type="سوئیت" data-capacity="2" data-vip="true">
+                        <td>1</td>
+                        <td>
+                            <strong>101</strong>
+                            <span class="badge bg-warning text-dark">VIP</span>
+                        </td>
+                        <td>سوئیت</td>
+                        <td><span class="badge bg-success">خالی</span></td>
+                        <td>1,500,000 تومان</td>
+                        <td>2 نفر</td>
+                        <td>
+                            <span class="badge bg-secondary">تلویزیون</span>
+                            <span class="badge bg-secondary">مینی بار</span>
+                            <span class="badge bg-secondary">اینترنت</span>
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="#" class="btn btn-info" title="مشاهده">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="#" class="btn btn-warning" title="ویرایش">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button class="btn btn-danger" title="حذف">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    
+                    <!-- Sample Room 2 -->
+                    <tr data-status="booked" data-type="دبل" data-capacity="2" data-vip="false">
+                        <td>2</td>
+                        <td><strong>102</strong></td>
+                        <td>دبل</td>
+                        <td><span class="badge bg-primary">رزرو شده</span></td>
+                        <td>850,000 تومان</td>
+                        <td>2 نفر</td>
+                        <td>
+                            <span class="badge bg-secondary">تلویزیون</span>
+                            <span class="badge bg-secondary">اینترنت</span>
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="#" class="btn btn-info" title="مشاهده">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="#" class="btn btn-warning" title="ویرایش">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button class="btn btn-danger" title="حذف">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    
+                    <!-- Sample Room 3 -->
+                    <tr data-status="occupied" data-type="سوئیت" data-capacity="4" data-vip="true">
+                        <td>3</td>
+                        <td>
+                            <strong>201</strong>
+                            <span class="badge bg-warning text-dark">VIP</span>
+                        </td>
+                        <td>سوئیت</td>
+                        <td><span class="badge bg-info">اشغال شده</span></td>
+                        <td>2,200,000 تومان</td>
+                        <td>4 نفر</td>
+                        <td>
+                            <span class="badge bg-secondary">تلویزیون</span>
+                            <span class="badge bg-secondary">مینی بار</span>
+                            <span class="badge bg-secondary">اینترنت</span>
+                            <span class="badge bg-secondary">جکوزی</span>
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="#" class="btn btn-info" title="مشاهده">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="#" class="btn btn-warning" title="ویرایش">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button class="btn btn-danger" title="حذف">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    
+                    <!-- Sample Room 4 -->
+                    <tr data-status="maintenance" data-type="سینگل" data-capacity="1" data-vip="false">
+                        <td>4</td>
+                        <td><strong>103</strong></td>
+                        <td>سینگل</td>
+                        <td><span class="badge bg-danger">در تعمیرات</span></td>
+                        <td>650,000 تومان</td>
+                        <td>1 نفر</td>
+                        <td>
+                            <span class="badge bg-secondary">اینترنت</span>
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="#" class="btn btn-info" title="مشاهده">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="#" class="btn btn-warning" title="ویرایش">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button class="btn btn-danger" title="حذف">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    
+                    <!-- Sample Room 5 -->
+                    <tr data-status="available" data-type="فامیلی" data-capacity="4" data-vip="false">
+                        <td>5</td>
+                        <td><strong>202</strong></td>
+                        <td>فامیلی</td>
+                        <td><span class="badge bg-success">خالی</span></td>
+                        <td>1,200,000 تومان</td>
+                        <td>4 نفر</td>
+                        <td>
+                            <span class="badge bg-secondary">تلویزیون</span>
+                            <span class="badge bg-secondary">اینترنت</span>
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="#" class="btn btn-info" title="مشاهده">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="#" class="btn btn-warning" title="ویرایش">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button class="btn btn-danger" title="حذف">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" aria-label="Previous">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item">
+                    <a class="page-link" href="#" aria-label="Next">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<!-- Add Room Modal -->
+<div class="modal fade" id="addRoomModal" tabindex="-1" aria-labelledby="addRoomModalLabel" aria-hidden="true" dir="rtl">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color: #27374D; color: white;">
+                <h5 class="modal-title" id="addRoomModalLabel">افزودن اتاق جدید</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="{% url 'accounts:dashboard' %}">
+                    {% csrf_token %}
+                    
+                    <div class="row g-3">
+                        <!-- Room Number -->
+                        <div class="col-md-6">
+                            <label for="roomNumber" class="form-label">شماره اتاق</label>
+                            <input type="text" class="form-control" id="roomNumber" name="number" required>
+                        </div>
+                        
+                        <!-- Room Type -->
+                        <div class="col-md-6">
+                            <label for="roomType" class="form-label">نوع اتاق</label>
+                            <select class="form-select" id="roomType" name="room_type" required>
+                                <option value="" selected disabled>انتخاب کنید</option>
+                                <option value="سوئیت">سوئیت</option>
+                                <option value="دبل">دبل</option>
+                                <option value="سینگل">سینگل</option>
+                                <option value="فامیلی">فامیلی</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Capacity -->
+                        <div class="col-md-4">
+                            <label for="capacity" class="form-label">ظرفیت</label>
+                            <input type="number" class="form-control" id="capacity" name="capacity" min="1" required>
+                        </div>
+                        
+                        <!-- Price -->
+                        <div class="col-md-4">
+                            <label for="price" class="form-label">قیمت شبانه (تومان)</label>
+                            <input type="number" class="form-control" id="price" name="price" min="0" required>
+                        </div>
+                        
+                        <!-- VIP Status -->
+                        <div class="col-md-4">
+                            <label class="form-label">وضعیت VIP</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="isVip" name="is_vip">
+                                <label class="form-check-label" for="isVip">
+                                    اتاق VIP
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Amenities -->
+                        <div class="col-md-12">
+                            <label class="form-label">امکانات</label>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="tv" name="amenities" value="تلویزیون">
+                                        <label class="form-check-label" for="tv">تلویزیون</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="minibar" name="amenities" value="مینی بار">
+                                        <label class="form-check-label" for="minibar">مینی بار</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="internet" name="amenities" value="اینترنت">
+                                        <label class="form-check-label" for="internet">اینترنت</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="jacuzzi" name="amenities" value="جکوزی">
+                                        <label class="form-check-label" for="jacuzzi">جکوزی</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Description -->
+                        <div class="col-md-12">
+                            <label for="description" class="form-label">توضیحات</label>
+                            <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="modal-footer mt-4">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                        <button type="submit" class="btn btn-success">ذخیره اتاق</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Add jQuery first -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        // Filter functionality
+        function filterRooms() {
+            const searchText = $('#searchInput').val().toLowerCase();
+            const statusFilter = $('#statusFilter').val();
+            const typeFilter = $('#typeFilter').val();
+            const capacityFilter = $('#capacityFilter').val();
+            const vipFilter = $('#vipFilter').val();
+            
+            let visibleCount = 0;
+            let availableCount = 0;
+            let bookedCount = 0;
+            let maintenanceCount = 0;
+            
+            $('#roomsTable tbody tr').each(function() {
+                const roomText = $(this).text().toLowerCase();
+                const status = $(this).data('status');
+                const type = $(this).data('type');
+                const capacity = $(this).data('capacity');
+                const isVip = $(this).data('vip').toString();
+                
+                const matchesSearch = searchText === '' || roomText.includes(searchText);
+                const matchesStatus = statusFilter === '' || status === statusFilter;
+                const matchesType = typeFilter === '' || type === typeFilter;
+                const matchesCapacity = capacityFilter === '' || 
+                    (capacityFilter === '4' ? capacity >= 4 : capacity.toString() === capacityFilter);
+                const matchesVip = vipFilter === '' || isVip === vipFilter;
+                
+                if (matchesSearch && matchesStatus && matchesType && matchesCapacity && matchesVip) {
+                    $(this).show();
+                    visibleCount++;
+                    
+                    // Count statuses
+                    if (status === 'available') availableCount++;
+                    else if (status === 'booked') bookedCount++;
+                    else if (status === 'maintenance') maintenanceCount++;
+                } else {
+                    $(this).hide();
+                }
+            });
+            
+            // Update counters
+            $('#totalRooms').text(visibleCount);
+            $('#availableRooms').text(availableCount);
+            $('#bookedRooms').text(bookedCount);
+            $('#maintenanceRooms').text(maintenanceCount);
+        }
+        
+        // Apply filters on change
+        $('#searchInput, #statusFilter, #typeFilter, #capacityFilter, #vipFilter').on('input change', filterRooms);
+        
+        // Reset filters
+        $('#resetFilters').click(function() {
+            $('#searchInput').val('');
+            $('#statusFilter').val('');
+            $('#typeFilter').val('');
+            $('#capacityFilter').val('');
+            $('#vipFilter').val('');
+            filterRooms();
+        });
+        
+        // Initialize counts
+        filterRooms();
+    });
+</script>
+
+<style>
+        /* Modal RTL adjustments */
+    .modal-header .btn-close {
+        margin-left: 0;
+        margin-right: auto;
+    }
+    .filter-card {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+    }
+    
+    #roomsTable tbody tr {
+        transition: all 0.2s;
+    }
+    
+    #roomsTable tbody tr:hover {
+        background-color: rgba(221, 230, 237, 0.5);
+    }
+    
+    .badge {
+        margin-left: 5px;
+        font-weight: 500;
+    }
+    
+    .table th {
+        white-space: nowrap;
+    }
+</style>
+{% endblock %}

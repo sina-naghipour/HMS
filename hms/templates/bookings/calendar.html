@@ -1,0 +1,354 @@
+{% extends "admin/base.html" %}
+
+{% block title %}مدیریت رزروها | تقویم رزروها{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'accounts:dashboard' %}">داشبورد</a></li>
+<li class="breadcrumb-item active">تقویم رزروها</li>
+{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-header d-flex justify-content-between align-items-center" style="background-color: #27374D; color: white;">
+        <h4 class="mb-0">تقویم رزروها</h4>
+        <div>
+            <div class="btn-group">
+                <button class="btn btn-sm btn-outline-light" id="prevMonth">
+                    <i class="fas fa-arrow-right"></i> ماه قبل
+                </button>
+                <button class="btn btn-sm btn-outline-light" id="nextMonth">
+                    ماه بعد <i class="fas fa-arrow-left"></i>
+                </button>
+            </div>
+            <button class="btn btn-sm btn-success ms-2" id="todayBtn">
+                امروز
+            </button>
+        </div>
+    </div>
+    
+    <div class="card-body">
+        <!-- Calendar Navigation -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4 id="currentMonth" class="mb-0">مهر ۱۴۰۲</h4>
+                    
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-outline-primary active" id="monthView">ماهانه</button>
+                        <button type="button" class="btn btn-outline-primary" id="weekView">هفتگی</button>
+                        <button type="button" class="btn btn-outline-primary" id="dayView">روزانه</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Month View -->
+        <div id="monthCalendar">
+            <div class="calendar-header">
+                <div class="calendar-day-header">شنبه</div>
+                <div class="calendar-day-header">یکشنبه</div>
+                <div class="calendar-day-header">دوشنبه</div>
+                <div class="calendar-day-header">سه‌شنبه</div>
+                <div class="calendar-day-header">چهارشنبه</div>
+                <div class="calendar-day-header">پنجشنبه</div>
+                <div class="calendar-day-header">جمعه</div>
+            </div>
+            
+            <div class="calendar-body" id="monthCalendarBody">
+                <!-- Calendar days will be populated by JavaScript -->
+            </div>
+        </div>
+        
+        <!-- Week View (Hidden by default) -->
+        <div id="weekCalendar" style="display: none;">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th width="14%">ساعت</th>
+                            <th width="14%">شنبه<br>۱ مهر</th>
+                            <th width="14%">یکشنبه<br>۲ مهر</th>
+                            <th width="14%">دوشنبه<br>۳ مهر</th>
+                            <th width="14%">سه‌شنبه<br>۴ مهر</th>
+                            <th width="14%">چهارشنبه<br>۵ مهر</th>
+                            <th width="14%">پنجشنبه<br>۶ مهر</th>
+                            <th width="14%">جمعه<br>۷ مهر</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for hour in hours %}
+                        <tr>
+                            <td>{{ hour }}:00</td>
+                            {% for day in week_days %}
+                            <td class="calendar-hour-cell" data-date="{{ day.date|date:'Y-m-d' }}" data-hour="{{ hour }}">
+                                <!-- Bookings for this hour/day will go here -->
+                            </td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Day View (Hidden by default) -->
+        <div id="dayCalendar" style="display: none;">
+            <div class="row">
+                <div class="col-md-12">
+                    <h5 id="currentDay" class="text-center mb-4">شنبه ۱ مهر ۱۴۰۲</h5>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="timeline">
+                        {% for hour in hours %}
+                        <div class="timeline-hour">
+                            <div class="hour-label">{{ hour }}:00</div>
+                            <div class="hour-events" data-hour="{{ hour }}">
+                                <!-- Events for this hour will go here -->
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Booking Detail Modal -->
+<div class="modal fade" id="bookingDetailModal" tabindex="-1" aria-labelledby="bookingDetailModalLabel" aria-hidden="true" dir="rtl">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="bookingDetailModalLabel">جزئیات رزرو</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="bookingDetailContent">
+                <!-- Content will be loaded via AJAX -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">بستن</button>
+                <a href="#" class="btn btn-primary" id="editBookingBtn">ویرایش رزرو</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Persian month names
+    const monthNames = ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور", 
+                       "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"];
+    
+    // Current date - using JavaScript Date object for simplicity
+    let currentDate = new Date();
+    let currentMonth = currentDate.getMonth(); // 0-11
+    let currentYear = currentDate.getFullYear();
+    
+    // Initialize calendar
+    function updateCalendar() {
+        // Update month/year display
+        $('#currentMonth').text(`${monthNames[currentMonth]} ${currentYear}`);
+        
+        // Get first day of month and how many days in month
+        const firstDay = new Date(currentYear, currentMonth, 1);
+        const lastDay = new Date(currentYear, currentMonth + 1, 0);
+        const daysInMonth = lastDay.getDate();
+        const startingDay = firstDay.getDay(); // 0=Sunday, 6=Saturday
+        
+        // Adjust starting day for Persian week (Saturday is first day)
+        const persianStartingDay = (startingDay + 1) % 7;
+        
+        let calendarHtml = '';
+        let day = 1;
+        
+        // Create calendar rows (6 weeks max)
+        for (let i = 0; i < 6; i++) {
+            // Stop if we've rendered all days
+            if (day > daysInMonth) break;
+            
+            calendarHtml += '<div class="calendar-row">';
+            
+            // Create days for each week
+            for (let j = 0; j < 7; j++) {
+                if (i === 0 && j < persianStartingDay) {
+                    // Empty cells before first day of month
+                    calendarHtml += '<div class="calendar-day empty"></div>';
+                } else if (day > daysInMonth) {
+                    // Empty cells after last day of month
+                    calendarHtml += '<div class="calendar-day empty"></div>';
+                } else {
+                    // Day cell with bookings
+                    const dateStr = `${currentYear}-${currentMonth + 1}-${day}`;
+                    const bookings = getBookingsForDate(day); // Using day number for simplicity
+                    
+                    calendarHtml += `
+                        <div class="calendar-day">
+                            <div class="day-number">${day}</div>
+                            <div class="day-events">
+                                ${bookings.map(booking => `
+                                    <div class="calendar-event ${booking.status}">
+                                        ${booking.roomNumber} - ${booking.guestName}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                    day++;
+                }
+            }
+            
+            calendarHtml += '</div>';
+        }
+        
+        $('#monthCalendarBody').html(calendarHtml);
+    }
+    
+    // Simple dummy data - using day number as key
+    function getBookingsForDate(day) {
+        // Sample data for specific days
+        const sampleBookings = {
+            1: [
+                {roomNumber: '101', guestName: 'علی محمدی', status: 'confirmed'},
+                {roomNumber: '201', guestName: 'رضا احمدی', status: 'pending'}
+            ],
+            5: [
+                {roomNumber: '102', guestName: 'سارا کریمی', status: 'confirmed'}
+            ],
+            10: [
+                {roomNumber: '301', guestName: 'نازنین زاهدی', status: 'confirmed'},
+                {roomNumber: '202', guestName: 'امیر حسینی', status: 'completed'}
+            ],
+            15: [
+                {roomNumber: '103', guestName: 'مریم اکبری', status: 'confirmed'}
+            ],
+            20: [
+                {roomNumber: '203', guestName: 'حسین رضایی', status: 'pending'}
+            ],
+            25: [
+                {roomNumber: '302', guestName: 'فاطمه موسوی', status: 'confirmed'}
+            ]
+        };
+        
+        return sampleBookings[day] || [];
+    }
+    
+    // Navigation handlers
+    $('#prevMonth').click(function() {
+        currentMonth--;
+        if (currentMonth < 0) {
+            currentMonth = 11;
+            currentYear--;
+        }
+        updateCalendar();
+    });
+    
+    $('#nextMonth').click(function() {
+        currentMonth++;
+        if (currentMonth > 11) {
+            currentMonth = 0;
+            currentYear++;
+        }
+        updateCalendar();
+    });
+    
+    $('#todayBtn').click(function() {
+        currentDate = new Date();
+        currentMonth = currentDate.getMonth();
+        currentYear = currentDate.getFullYear();
+        updateCalendar();
+    });
+    
+    // Initialize calendar
+    updateCalendar();
+});
+</script>
+
+<style>
+    .calendar-header {
+        display: flex;
+        border-bottom: 1px solid #dee2e6;
+        margin-bottom: 10px;
+    }
+    
+    .calendar-day-header {
+        flex: 1;
+        text-align: center;
+        padding: 5px;
+        font-weight: bold;
+    }
+    
+    .calendar-body {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .calendar-row {
+        display: flex;
+        min-height: 100px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .calendar-day {
+        flex: 1;
+        padding: 5px;
+        border-right: 1px solid #eee;
+        position: relative;
+    }
+    
+    .calendar-day.empty {
+        background-color: #f9f9f9;
+    }
+    
+    .calendar-day:last-child {
+        border-right: none;
+    }
+    
+    .day-number {
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+    
+    .calendar-event {
+        font-size: 12px;
+        padding: 2px 5px;
+        margin-bottom: 3px;
+        border-radius: 3px;
+        cursor: pointer;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .calendar-event.confirmed {
+        background-color: #d4edda;
+        color: #155724;
+        border-left: 3px solid #28a745;
+    }
+    
+    .calendar-event.pending {
+        background-color: #fff3cd;
+        color: #856404;
+        border-left: 3px solid #ffc107;
+    }
+    
+    .calendar-event.completed {
+        background-color: #d1ecf1;
+        color: #0c5460;
+        border-left: 3px solid #17a2b8;
+    }
+    
+    .calendar-event.cancelled {
+        background-color: #f8d7da;
+        color: #721c24;
+        border-left: 3px solid #dc3545;
+    }
+</style>
+{% endblock %}

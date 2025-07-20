@@ -1,0 +1,342 @@
+{% extends "admin/base.html" %}
+
+{% block title %}مدیریت کارکنان | لیست کارکنان{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'accounts:dashboard' %}">داشبورد</a></li>
+<li class="breadcrumb-item active">لیست کارکنان</li>
+{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-header d-flex justify-content-between align-items-center" style="background-color: #27374D; color: white;">
+        <h4 class="mb-0">لیست کارکنان</h4>
+        <div>
+            <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#addStaffModal">
+                <i class="fas fa-plus ms-2"></i> کارمند جدید
+            </button>
+        </div>
+    </div>
+
+    <div class="card-body">
+        <!-- Filter and Search Section -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card filter-card">
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label">جستجو</label>
+                                <input type="text" class="form-control" id="searchInput" placeholder="جستجو بر اساس نام یا شماره پرسنلی...">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">سمت</label>
+                                <select class="form-select" id="positionFilter">
+                                    <option value="">همه</option>
+                                    <option value="manager">مدیر</option>
+                                    <option value="receptionist">پذیرش</option>
+                                    <option value="housekeeping">خدمات</option>
+                                    <option value="security">امنیت</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">وضعیت</label>
+                                <select class="form-select" id="statusFilter">
+                                    <option value="">همه</option>
+                                    <option value="active">فعال</option>
+                                    <option value="inactive">غیرفعال</option>
+                                    <option value="vacation">مرخصی</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2 d-flex align-items-end">
+                                <button id="resetFilters" class="btn btn-outline-danger w-100">
+                                    <i class="fas fa-times"></i> بازنشانی
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Staff Table -->
+        <div class="table-responsive">
+            <table class="table table-hover align-middle" id="staffTable">
+                <thead class="table-dark">
+                    <tr>
+                        <th width="50px">#</th>
+                        <th>نام کارمند</th>
+                        <th width="150px">شماره پرسنلی</th>
+                        <th width="150px">سمت</th>
+                        <th width="150px">تلفن</th>
+                        <th width="120px">وضعیت</th>
+                        <th width="150px">عملیات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Sample Staff 1 -->
+                    <tr data-position="manager" data-status="active">
+                        <td>1</td>
+                        <td>
+                            <strong>علی محمدی</strong>
+                            <p class="text-muted small mb-0">مدیر هتل</p>
+                        </td>
+                        <td>EMP-1001</td>
+                        <td>مدیر</td>
+                        <td>09123456789</td>
+                        <td><span class="badge bg-success">فعال</span></td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="#" class="btn btn-info" title="مشاهده">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="#" class="btn btn-warning" title="ویرایش">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button class="btn btn-danger" title="غیرفعال کردن">
+                                    <i class="fas fa-user-slash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    
+                    <!-- Sample Staff 2 -->
+                    <tr data-position="receptionist" data-status="active">
+                        <td>2</td>
+                        <td>
+                            <strong>فاطمه رضایی</strong>
+                            <p class="text-muted small mb-0">شیفت صبح</p>
+                        </td>
+                        <td>EMP-1002</td>
+                        <td>پذیرش</td>
+                        <td>09198765432</td>
+                        <td><span class="badge bg-success">فعال</span></td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="#" class="btn btn-info" title="مشاهده">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="#" class="btn btn-warning" title="ویرایش">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button class="btn btn-danger" title="غیرفعال کردن">
+                                    <i class="fas fa-user-slash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    
+                    <!-- Sample Staff 3 -->
+                    <tr data-position="housekeeping" data-status="vacation">
+                        <td>3</td>
+                        <td>
+                            <strong>محمد حسینی</strong>
+                            <p class="text-muted small mb-0">سرپرست خدمات</p>
+                        </td>
+                        <td>EMP-1003</td>
+                        <td>خدمات</td>
+                        <td>09351234567</td>
+                        <td><span class="badge bg-warning text-dark">مرخصی</span></td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="#" class="btn btn-info" title="مشاهده">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="#" class="btn btn-warning" title="ویرایش">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button class="btn btn-success" title="فعال کردن">
+                                    <i class="fas fa-user-check"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" aria-label="Previous">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item">
+                    <a class="page-link" href="#" aria-label="Next">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<!-- Add Staff Modal -->
+<div class="modal fade" id="addStaffModal" tabindex="-1" aria-labelledby="addStaffModalLabel" aria-hidden="true" dir="rtl">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color: #27374D; color: white;">
+                <h5 class="modal-title" id="addStaffModalLabel">افزودن کارمند جدید</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="row g-3">
+                        <!-- Personal Info -->
+                        <div class="col-md-6">
+                            <label class="form-label">نام کامل</label>
+                            <div class="row g-2">
+                                <div class="col-md-4">
+                                    <input type="text" class="form-control" placeholder="نام" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <input type="text" class="form-control" placeholder="نام خانوادگی" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <input type="text" class="form-control" placeholder="نام پدر">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-3">
+                            <label class="form-label">کد ملی</label>
+                            <input type="text" class="form-control" placeholder="کد ملی" required>
+                        </div>
+                        
+                        <div class="col-md-3">
+                            <label class="form-label">تاریخ تولد</label>
+                            <input type="text" class="form-control" placeholder="1370/05/15">
+                        </div>
+                        
+                        <!-- Contact Info -->
+                        <div class="col-md-4">
+                            <label class="form-label">تلفن همراه</label>
+                            <input type="tel" class="form-control" placeholder="09123456789" required>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <label class="form-label">ایمیل</label>
+                            <input type="email" class="form-control" placeholder="example@domain.com">
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <label class="form-label">تلفن ثابت</label>
+                            <input type="tel" class="form-control" placeholder="02144556677">
+                        </div>
+                        
+                        <!-- Employment Info -->
+                        <div class="col-md-4">
+                            <label class="form-label">شماره پرسنلی</label>
+                            <input type="text" class="form-control" placeholder="EMP-1004" required>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <label class="form-label">سمت</label>
+                            <select class="form-select" required>
+                                <option value="" selected disabled>انتخاب کنید</option>
+                                <option value="manager">مدیر</option>
+                                <option value="receptionist">پذیرش</option>
+                                <option value="housekeeping">خدمات</option>
+                                <option value="security">امنیت</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <label class="form-label">تاریخ استخدام</label>
+                            <input type="text" class="form-control" placeholder="1402/01/15" required>
+                        </div>
+                        
+                        <!-- Address -->
+                        <div class="col-md-12">
+                            <label class="form-label">آدرس</label>
+                            <textarea class="form-control" rows="2" placeholder="آدرس کامل..."></textarea>
+                        </div>
+                        
+                        <!-- Documents -->
+                        <div class="col-md-6">
+                            <label class="form-label">تصویر کارت ملی</label>
+                            <input type="file" class="form-control" accept="image/*">
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label class="form-label">تصویر پروفایل</label>
+                            <input type="file" class="form-control" accept="image/*">
+                        </div>
+                    </div>
+                    
+                    <div class="modal-footer mt-4">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                        <button type="submit" class="btn btn-success">ذخیره کارمند</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Filter functionality
+        function filterStaff() {
+            const searchText = $('#searchInput').val().toLowerCase();
+            const positionFilter = $('#positionFilter').val();
+            const statusFilter = $('#statusFilter').val();
+            
+            $('#staffTable tbody tr').each(function() {
+                const staffText = $(this).text().toLowerCase();
+                const position = $(this).data('position');
+                const status = $(this).data('status');
+                
+                const matchesSearch = searchText === '' || staffText.includes(searchText);
+                const matchesPosition = positionFilter === '' || position === positionFilter;
+                const matchesStatus = statusFilter === '' || status === statusFilter;
+                
+                if (matchesSearch && matchesPosition && matchesStatus) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+        }
+        
+        // Apply filters on change
+        $('#searchInput, #positionFilter, #statusFilter').on('input change', filterStaff);
+        
+        // Reset filters
+        $('#resetFilters').click(function() {
+            $('#searchInput').val('');
+            $('#positionFilter').val('');
+            $('#statusFilter').val('');
+            filterStaff();
+        });
+    });
+</script>
+
+<style>
+    .filter-card {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+    }
+    
+    #staffTable tbody tr {
+        transition: all 0.2s;
+    }
+    
+    #staffTable tbody tr:hover {
+        background-color: rgba(221, 230, 237, 0.5);
+    }
+    
+    .badge {
+        margin-left: 5px;
+        font-weight: 500;
+    }
+</style>
+{% endblock %}

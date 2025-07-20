@@ -1,0 +1,296 @@
+{% extends "admin/base.html" %}
+
+{% block title %}مدیریت رزروها | لیست رزروها{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'accounts:dashboard' %}">داشبورد</a></li>
+<li class="breadcrumb-item active">لیست رزروها</li>
+{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-header d-flex justify-content-between align-items-center" style="background-color: #27374D; color: white;">
+        <h4 class="mb-0">لیست رزروها</h4>
+        <div>
+            <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#addBookingModal">
+                <i class="fas fa-plus ms-2"></i> رزرو جدید
+            </button>
+        </div>
+    </div>
+
+    <div class="card-body">
+        <!-- Filter Section -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card filter-card">
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label class="form-label">جستجو</label>
+                                <input type="text" class="form-control" id="searchInput" placeholder="جستجو بر اساس نام مهمان یا شماره رزرو...">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">وضعیت</label>
+                                <select class="form-select" id="statusFilter">
+                                    <option value="">همه</option>
+                                    <option value="confirmed">تایید شده</option>
+                                    <option value="pending">در انتظار</option>
+                                    <option value="cancelled">لغو شده</option>
+                                    <option value="completed">تکمیل شده</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">تاریخ ورود</label>
+                                <input type="date" class="form-control" id="checkinFilter">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">تاریخ خروج</label>
+                                <input type="date" class="form-control" id="checkoutFilter">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">نوع اتاق</label>
+                                <select class="form-select" id="roomTypeFilter">
+                                    <option value="">همه</option>
+                                    <option value="سوئیت">سوئیت</option>
+                                    <option value="دبل">دبل</option>
+                                    <option value="سینگل">سینگل</option>
+                                </select>
+                            </div>
+                            <div class="col-md-1 d-flex align-items-end">
+                                <button id="resetFilters" class="btn btn-outline-danger w-100">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bookings Table -->
+        <div class="table-responsive">
+            <table class="table table-hover align-middle" id="bookingsTable">
+                <thead class="table-dark">
+                    <tr>
+                        <th width="50px">#</th>
+                        <th width="120px">شماره رزرو</th>
+                        <th>مهمان</th>
+                        <th width="120px">اتاق</th>
+                        <th width="100px">ورود</th>
+                        <th width="100px">خروج</th>
+                        <th width="100px">وضعیت</th>
+                        <th width="150px">عملیات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for booking in bookings %}
+                    <tr data-status="{{ booking.status }}" data-room-type="{{ booking.room.type }}" 
+                        data-checkin="{{ booking.check_in|date:'Y-m-d' }}" data-checkout="{{ booking.check_out|date:'Y-m-d' }}">
+                        <td>{{ forloop.counter }}</td>
+                        <td><strong>#{{ booking.booking_number }}</strong></td>
+                        <td>{{ booking.guest.name }}</td>
+                        <td>{{ booking.room.number }} ({{ booking.room.type }})</td>
+                        <td>{{ booking.check_in|date:"Y/m/d" }}</td>
+                        <td>{{ booking.check_out|date:"Y/m/d" }}</td>
+                        <td>
+                            {% if booking.status == 'confirmed' %}
+                                <span class="badge bg-success">تایید شده</span>
+                            {% elif booking.status == 'pending' %}
+                                <span class="badge bg-warning text-dark">در انتظار</span>
+                            {% elif booking.status == 'cancelled' %}
+                                <span class="badge bg-danger">لغو شده</span>
+                            {% else %}
+                                <span class="badge bg-info">تکمیل شده</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="{%  url 'accounts:dashboard' %}" class="btn btn-info" title="مشاهده">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="#" class="btn btn-warning" title="ویرایش">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button class="btn btn-danger" title="حذف">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+                
+                {% for num in page_obj.paginator.page_range %}
+                <li class="page-item {% if num == page_obj.number %}active{% endif %}">
+                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                </li>
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<!-- Add Booking Modal -->
+<div class="modal fade" id="addBookingModal" tabindex="-1" aria-labelledby="addBookingModalLabel" aria-hidden="true" dir="rtl">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color: #27374D; color: white;">
+                <h5 class="modal-title" id="addBookingModalLabel">رزرو جدید</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="{%  url 'accounts:dashboard' %}">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <!-- Guest Selection -->
+                        <div class="col-md-6">
+                            <label for="guestSelect" class="form-label">مهمان</label>
+                            <select class="form-select" id="guestSelect" name="guest" required>
+                                <option value="" selected disabled>انتخاب مهمان</option>
+                                {% for guest in guests %}
+                                <option value="{{ guest.id }}">{{ guest.name }} - {{ guest.phone }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <!-- Room Selection -->
+                        <div class="col-md-6">
+                            <label for="roomSelect" class="form-label">اتاق</label>
+                            <select class="form-select" id="roomSelect" name="room" required>
+                                <option value="" selected disabled>انتخاب اتاق</option>
+                                {% for room in available_rooms %}
+                                <option value="{{ room.id }}">{{ room.number }} ({{ room.type }}) - {{ room.price_per_night }} تومان</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <!-- Dates -->
+                        <div class="col-md-4">
+                            <label for="checkInDate" class="form-label">تاریخ ورود</label>
+                            <input type="date" class="form-control" id="checkInDate" name="check_in" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="checkOutDate" class="form-label">تاریخ خروج</label>
+                            <input type="date" class="form-control" id="checkOutDate" name="check_out" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="adults" class="form-label">تعداد بزرگسالان</label>
+                            <input type="number" class="form-control" id="adults" name="adults" min="1" value="1" required>
+                        </div>
+                        
+                        <!-- Payment -->
+                        <div class="col-md-6">
+                            <label for="paymentStatus" class="form-label">وضعیت پرداخت</label>
+                            <select class="form-select" id="paymentStatus" name="payment_status">
+                                <option value="unpaid">پرداخت نشده</option>
+                                <option value="partial">پرداخت جزئی</option>
+                                <option value="paid">پرداخت کامل</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="totalAmount" class="form-label">مبلغ کل (تومان)</label>
+                            <input type="number" class="form-control" id="totalAmount" name="total_amount" min="0" required>
+                        </div>
+                        
+                        <!-- Notes -->
+                        <div class="col-md-12">
+                            <label for="notes" class="form-label">توضیحات</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="2"></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="modal-footer mt-4">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                        <button type="submit" class="btn btn-success">ثبت رزرو</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Filter functionality
+        function filterBookings() {
+            const searchText = $('#searchInput').val().toLowerCase();
+            const statusFilter = $('#statusFilter').val();
+            const checkinFilter = $('#checkinFilter').val();
+            const checkoutFilter = $('#checkoutFilter').val();
+            const roomTypeFilter = $('#roomTypeFilter').val();
+            
+            $('#bookingsTable tbody tr').each(function() {
+                const rowText = $(this).text().toLowerCase();
+                const status = $(this).data('status');
+                const roomType = $(this).data('room-type');
+                const checkin = $(this).data('checkin');
+                const checkout = $(this).data('checkout');
+                
+                const matchesSearch = searchText === '' || rowText.includes(searchText);
+                const matchesStatus = statusFilter === '' || status === statusFilter;
+                const matchesRoomType = roomTypeFilter === '' || roomType === roomTypeFilter;
+                const matchesCheckin = checkinFilter === '' || checkin === checkinFilter;
+                const matchesCheckout = checkoutFilter === '' || checkout === checkoutFilter;
+                
+                if (matchesSearch && matchesStatus && matchesRoomType && matchesCheckin && matchesCheckout) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+        }
+        
+        // Apply filters on change
+        $('#searchInput, #statusFilter, #checkinFilter, #checkoutFilter, #roomTypeFilter').on('input change', filterBookings);
+        
+        // Reset filters
+        $('#resetFilters').click(function() {
+            $('#searchInput').val('');
+            $('#statusFilter').val('');
+            $('#checkinFilter').val('');
+            $('#checkoutFilter').val('');
+            $('#roomTypeFilter').val('');
+            filterBookings();
+        });
+        
+        // Calculate total amount when dates or room changes
+        $('#roomSelect, #checkInDate, #checkOutDate').change(function() {
+            const roomId = $('#roomSelect').val();
+            const checkIn = $('#checkInDate').val();
+            const checkOut = $('#checkOutDate').val();
+            
+            if (roomId && checkIn && checkOut) {
+                // You would typically make an AJAX call here to calculate the total
+                // For demo purposes, we'll just show a sample calculation
+                const pricePerNight = 500000; // This should come from your backend
+                const nights = Math.ceil((new Date(checkOut) - new Date(checkIn)) / (1000 * 60 * 60 * 24));
+                $('#totalAmount').val(pricePerNight * nights);
+            }
+        });
+    });
+</script>
+{% endblock %}

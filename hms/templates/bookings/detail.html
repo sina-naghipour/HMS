@@ -1,0 +1,217 @@
+{% extends "admin/base.html" %}
+
+{% block title %}مدیریت رزروها | جزئیات رزرو #{{ booking.booking_number }}{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'accounts:dashboard' %}">داشبورد</a></li>
+<li class="breadcrumb-item"><a href="{% url 'accounts:dashboard' %}">لیست رزروها</a></li>
+<li class="breadcrumb-item active">جزئیات رزرو #{{ booking.booking_number }}</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center" style="background-color: #27374D; color: white;">
+                <h4 class="mb-0">جزئیات رزرو</h4>
+                <div>
+                    {% if booking.status == 'pending' %}
+                    <button class="btn btn-sm btn-success me-2">تایید رزرو</button>
+                    {% endif %}
+                    <a href="{% url 'accounts:dashboard' %}" class="btn btn-sm btn-warning me-2">
+                        <i class="fas fa-edit me-1"></i> ویرایش
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>اطلاعات مهمان</h5>
+                        <hr>
+                        <p><strong>نام:</strong> {{ booking.guest.name }}</p>
+                        <p><strong>تلفن:</strong> {{ booking.guest.phone }}</p>
+                        <p><strong>ایمیل:</strong> {{ booking.guest.email|default:"-" }}</p>
+                        <p><strong>کد ملی:</strong> {{ booking.guest.national_id|default:"-" }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>اطلاعات اتاق</h5>
+                        <hr>
+                        <p><strong>شماره اتاق:</strong> {{ booking.room.number }}</p>
+                        <p><strong>نوع اتاق:</strong> {{ booking.room.type }}</p>
+                        <p><strong>قیمت شبانه:</strong> {{ booking.room.price_per_night }} تومان</p>
+                        <p><strong>امکانات:</strong> 
+                            {% for amenity in booking.room.amenities.all %}
+                            <span class="badge bg-secondary">{{ amenity.name }}</span>
+                            {% endfor %}
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <h5>جزئیات رزرو</h5>
+                        <hr>
+                        <p><strong>شماره رزرو:</strong> #{{ booking.booking_number }}</p>
+                        <p><strong>تاریخ ورود:</strong> {{ booking.check_in|date:"Y/m/d" }}</p>
+                        <p><strong>تاریخ خروج:</strong> {{ booking.check_out|date:"Y/m/d" }}</p>
+                        <p><strong>تعداد شب‌ها:</strong> {{ booking.nights }} شب</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>وضعیت پرداخت</h5>
+                        <hr>
+                        <p><strong>وضعیت:</strong> 
+                            {% if booking.payment_status == 'paid' %}
+                            <span class="badge bg-success">پرداخت کامل</span>
+                            {% elif booking.payment_status == 'partial' %}
+                            <span class="badge bg-warning text-dark">پرداخت جزئی</span>
+                            {% else %}
+                            <span class="badge bg-danger">پرداخت نشده</span>
+                            {% endif %}
+                        </p>
+                        <p><strong>مبلغ کل:</strong> {{ booking.total_amount }} تومان</p>
+                        <p><strong>مبلغ پرداخت شده:</strong> {{ booking.paid_amount }} تومان</p>
+                        <p><strong>مانده:</strong> {{ booking.remaining_amount }} تومان</p>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <h5>توضیحات</h5>
+                    <hr>
+                    <p>{{ booking.notes|default:"-" }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <!-- Actions Card -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header" style="background-color: #27374D; color: white;">
+                <h5 class="mb-0">عملیات</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    {% if booking.status == 'confirmed' %}
+                    <button class="btn btn-success">ثبت ورود</button>
+                    {% elif booking.status == 'checked_in' %}
+                    <button class="btn btn-warning">ثبت خروج</button>
+                    {% endif %}
+                    
+                    {% if booking.status != 'cancelled' %}
+                    <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#cancelBookingModal">لغو رزرو</button>
+                    {% endif %}
+                    
+                    <a href="#" class="btn btn-info">چاپ فاکتور</a>
+                    <a href="#" class="btn btn-primary">ارسال تاییدیه</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Payment History -->
+        <div class="card shadow-sm">
+            <div class="card-header" style="background-color: #27374D; color: white;">
+                <h5 class="mb-0">تاریخچه پرداخت‌ها</h5>
+            </div>
+            <div class="card-body">
+                {% if booking.payments.all %}
+                <div class="list-group">
+                    {% for payment in booking.payments.all %}
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between">
+                            <strong>{{ payment.amount }} تومان</strong>
+                            <span class="badge bg-{% if payment.status == 'success' %}success{% else %}danger{% endif %}">
+                                {{ payment.get_status_display }}
+                            </span>
+                        </div>
+                        <small class="text-muted">{{ payment.payment_date|date:"Y/m/d H:i" }} - {{ payment.get_method_display }}</small>
+                        {% if payment.notes %}
+                        <div class="mt-1"><small>{{ payment.notes }}</small></div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted">هیچ پرداختی ثبت نشده است.</p>
+                {% endif %}
+                
+                <button class="btn btn-sm btn-primary mt-3 w-100" data-bs-toggle="modal" data-bs-target="#addPaymentModal">
+                    <i class="fas fa-plus me-1"></i> ثبت پرداخت جدید
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cancel Booking Modal -->
+<div class="modal fade" id="cancelBookingModal" tabindex="-1" aria-labelledby="cancelBookingModalLabel" aria-hidden="true" dir="rtl">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="cancelBookingModalLabel">لغو رزرو</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" action="{% url 'accounts:dashboard' %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <p>آیا از لغو رزرو #{{ booking.booking_number }} مطمئن هستید؟</p>
+                    <div class="mb-3">
+                        <label for="cancelReason" class="form-label">دلیل لغو</label>
+                        <textarea class="form-control" id="cancelReason" name="reason" rows="3" required></textarea>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="refundCheck" name="refund">
+                        <label class="form-check-label" for="refundCheck">بازپرداخت مبلغ به مهمان</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                    <button type="submit" class="btn btn-danger">تایید لغو</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Add Payment Modal -->
+<div class="modal fade" id="addPaymentModal" tabindex="-1" aria-labelledby="addPaymentModalLabel" aria-hidden="true" dir="rtl">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="addPaymentModalLabel">ثبت پرداخت جدید</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" action="{% url 'accounts:dashboard' %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="paymentAmount" class="form-label">مبلغ (تومان)</label>
+                        <input type="number" class="form-control" id="paymentAmount" name="amount" min="1" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="paymentMethod" class="form-label">روش پرداخت</label>
+                        <select class="form-select" id="paymentMethod" name="method" required>
+                            <option value="cash">نقدی</option>
+                            <option value="card">کارت به کارت</option>
+                            <option value="online">درگاه آنلاین</option>
+                            <option value="pos">دستگاه POS</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="paymentDate" class="form-label">تاریخ پرداخت</label>
+                        <input type="datetime-local" class="form-control" id="paymentDate" name="payment_date" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="paymentNotes" class="form-label">توضیحات</label>
+                        <textarea class="form-control" id="paymentNotes" name="notes" rows="2"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                    <button type="submit" class="btn btn-primary">ثبت پرداخت</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

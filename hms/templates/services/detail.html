@@ -1,0 +1,249 @@
+{% extends "admin/base.html" %}
+
+{% block title %}مدیریت خدمات | جزئیات خدمت{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'accounts:dashboard' %}">داشبورد</a></li>
+<li class="breadcrumb-item"><a href="{% url 'services:list' %}">لیست خدمات</a></li>
+<li class="breadcrumb-item active">جزئیات خدمت</li>
+{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-header" style="background-color: #27374D; color: white;">
+        <h4 class="mb-0">جزئیات خدمت: صبحانه بوفه</h4>
+    </div>
+
+    <div class="card-body">
+        <div class="row">
+            <!-- Service Information -->
+            <div class="col-md-8">
+                <div class="card mb-4">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">اطلاعات اصلی</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>نام خدمت:</strong> صبحانه بوفه</p>
+                                <p><strong>دسته بندی:</strong> رستوران</p>
+                                <p><strong>قیمت:</strong> 150,000 تومان</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>وضعیت:</strong> <span class="badge bg-success">فعال</span></p>
+                                <p><strong>تاریخ ایجاد:</strong> 1402/01/15</p>
+                                <p><strong>آخرین ویرایش:</strong> 1402/03/22</p>
+                            </div>
+                        </div>
+                        
+                        <hr>
+                        
+                        <h6>توضیحات:</h6>
+                        <p>صبحانه کامل شامل انواع نان تازه، پنیر محلی، مرباهای خانگی، عسل، کره، تخم مرغ نیمرو و آبمیوه تازه. سرویس از ساعت 6:30 تا 10:30 صبح.</p>
+                    </div>
+                </div>
+
+                <!-- Service Usage -->
+                <div class="card">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">آمار استفاده</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4 text-center">
+                                <h3>45</h3>
+                                <p class="text-muted">استفاده این ماه</p>
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <h3>320</h3>
+                                <p class="text-muted">استفاده این فصل</p>
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <h3>1,240</h3>
+                                <p class="text-muted">استفاده این سال</p>
+                            </div>
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="chart-container" style="height: 200px;">
+                            <canvas id="usageChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar - Actions and Images -->
+            <div class="col-md-4">
+                <!-- Service Image -->
+                <div class="card mb-4">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">تصویر خدمت</h5>
+                    </div>
+                    <div class="card-body text-center">
+                        <img src="https://via.placeholder.com/300x200?text=Breakfast+Service" alt="صبحانه بوفه" class="img-fluid rounded mb-3">
+                        <button class="btn btn-sm btn-outline-primary w-100">تغییر تصویر</button>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="card mb-4">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">عملیات سریع</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <a href="#" class="btn btn-warning">
+                                <i class="fas fa-edit me-2"></i> ویرایش خدمت
+                            </a>
+                            <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deactivateModal">
+                                <i class="fas fa-ban me-2"></i> غیرفعال کردن
+                            </button>
+                            <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#priceModal">
+                                <i class="fas fa-tag me-2"></i> تغییر قیمت
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Orders -->
+                <div class="card">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">سفارشات اخیر</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="list-group">
+                            <a href="#" class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <small>1402/05/20</small>
+                                    <span class="badge bg-success">150,000 تومان</span>
+                                </div>
+                                <p class="mb-1">اتاق ۲۰۱ - محمد رضایی</p>
+                            </a>
+                            <a href="#" class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <small>1402/05/19</small>
+                                    <span class="badge bg-success">150,000 تومان</span>
+                                </div>
+                                <p class="mb-1">اتاق ۱۰۳ - فاطمه محمدی</p>
+                            </a>
+                            <a href="#" class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <small>1402/05/18</small>
+                                    <span class="badge bg-success">150,000 تومان</span>
+                                </div>
+                                <p class="mb-1">اتاق ۲۰۲ - شرکت توسعه</p>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Deactivate Modal -->
+<div class="modal fade" id="deactivateModal" tabindex="-1" aria-labelledby="deactivateModalLabel" aria-hidden="true" dir="rtl">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deactivateModalLabel">غیرفعال کردن خدمت</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>آیا از غیرفعال کردن خدمت "صبحانه بوفه" مطمئن هستید؟</p>
+                <div class="mb-3">
+                    <label for="deactivateReason" class="form-label">دلیل (اختیاری)</label>
+                    <textarea class="form-control" id="deactivateReason" rows="3"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                <button type="button" class="btn btn-danger">تایید و غیرفعال کردن</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Price Change Modal -->
+<div class="modal fade" id="priceModal" tabindex="-1" aria-labelledby="priceModalLabel" aria-hidden="true" dir="rtl">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title" id="priceModalLabel">تغییر قیمت خدمت</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">قیمت فعلی</label>
+                    <input type="text" class="form-control" value="150,000 تومان" disabled>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">قیمت جدید (تومان)</label>
+                    <input type="number" class="form-control" placeholder="قیمت جدید" min="0">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">دلیل تغییر قیمت (اختیاری)</label>
+                    <textarea class="form-control" rows="3" placeholder="توضیحات..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                <button type="button" class="btn btn-info">ذخیره تغییرات</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Sample Chart.js implementation for usage chart
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('usageChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور'],
+                datasets: [{
+                    label: 'تعداد استفاده',
+                    data: [35, 42, 38, 45, 40, 48],
+                    backgroundColor: 'rgba(67, 97, 238, 0.2)',
+                    borderColor: '#4361ee',
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    });
+</script>
+
+<style>
+    .badge {
+        font-size: 0.85rem;
+        padding: 0.35em 0.65em;
+    }
+    
+    .card-header h5 {
+        font-weight: 600;
+    }
+    
+    .chart-container {
+        position: relative;
+    }
+    
+    .list-group-item {
+        border-right: none;
+        border-left: 3px solid #27374D;
+    }
+</style>
+{% endblock %}
