@@ -1,51 +1,37 @@
-<nav class="navbar navbar-expand-md navbar-dark fixed-top" style="background-color: #27374D;">
-    <div class="container-fluid">
-        <button class="navbar-toggler me-2" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+<header class="bg-white dark:bg-gray-800 shadow">
+    <div class="px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center space-x-4 space-x-reverse">
+            <button class="lg:hidden text-gray-500 dark:text-gray-400" onclick="document.querySelector('.sidebar').classList.toggle('hidden')">
+                <i class="ti ti-menu-2 text-2xl"></i>
+            </button>
+            <h1 class="text-xl font-bold">هتل لوکس</h1>
+        </div>
         
-        <a class="navbar-brand me-2" href="#">
-            <i class="fas fa-hotel ms-2"></i>
-            <span class="d-none d-md-inline">مدیریت هتل</span>
-        </a>
-        
-        <div class="collapse navbar-collapse" id="navbarCollapse">
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown">
-                        <i class="fas fa-bell"></i>
-                        <span class="badge bg-danger rounded-pill">۳</span>
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-start">
-                        <li><h6 class="dropdown-header">اعلانات</h6></li>
-                        <li><a class="dropdown-item" href="#">رزرو جدید دریافت شد</a></li>
-                        <li><a class="dropdown-item" href="#">نیاز به سرویس اتاق</a></li>
-                        <li><a class="dropdown-item" href="#">یادآوری خروج</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="#">مشاهده همه</a></li>
-                    </ul>
-                </li>
-                
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
-                        <i class="fas fa-user-circle ms-1"></i>
-                        <span class="d-none d-md-inline">مدیر سیستم</span>
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-start">
-                        <li><a class="dropdown-item" href="#"><i class="fas fa-user ms-2"></i>پروفایل</a></li>
-                        <li><a class="dropdown-item" href="#"><i class="fas fa-cog ms-2"></i>تنظیمات</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt ms-2"></i>خروج</a></li>
-                    </ul>
-                </li>
-            </ul>
+        <div class="flex items-center space-x-4 space-x-reverse">
+            <button onclick="toggleTheme()" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
+                <i class="ti ti-sun dark:hidden"></i>
+                <i class="ti ti-moon hidden dark:block"></i>
+            </button>
             
-            <form class="d-flex ms-3">
-                <input class="form-control me-2" type="search" placeholder="جستجو..." aria-label="Search">
-                <button class="btn btn-outline-light" type="submit">
-                    <i class="fas fa-search"></i>
+            <div class="relative">
+                <button class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 relative">
+                    <i class="ti ti-bell"></i>
+                    <span class="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
                 </button>
-            </form>
+            </div>
+            
+            <div class="relative">
+                <button class="flex items-center space-x-2 space-x-reverse" onclick="document.getElementById('profile-menu').classList.toggle('hidden')">
+                    <img src="https://randomuser.me/api/portraits/men/1.jpg" alt="Profile" class="w-8 h-8 rounded-full">
+                    <span class="hidden md:inline">مدیر سیستم</span>
+                </button>
+                
+                <div id="profile-menu" class="hidden absolute left-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg z-10">
+                    <a href="#" class="block px-4 py-2 text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">پروفایل</a>
+                    <a href="#" class="block px-4 py-2 text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">تنظیمات</a>
+                    <a href="#" class="block px-4 py-2 text-red-600 hover:bg-gray-100 dark:hover:bg-gray-700">خروج</a>
+                </div>
+            </div>
         </div>
     </div>
-</nav>
+</header>

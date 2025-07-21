@@ -1,251 +1,70 @@
-<nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar collapse" style="background: linear-gradient(180deg, #27374D 0%, #526D82 100%);">
-    <!-- Mobile Menu Toggle (Visible only on small screens) -->
-    <div class="d-md-none d-flex justify-content-between align-items-center p-3 border-bottom border-secondary">
-        <h5 class="text-white mb-0">منو</h5>
-        <button class="btn btn-sm btn-outline-light" id="sidebarCollapseMobile">
-            <i class="fas fa-times"></i>
-        </button>
+<aside class="sidebar w-64 bg-white dark:bg-gray-800 shadow-md hidden lg:block">
+    <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+        <h2 class="text-xl font-bold">پنل مدیریت هتل</h2>
     </div>
     
-    <div class="position-sticky pt-3">
-        <!-- Brand Logo/Name -->
-        <div class="text-center mb-4">
-            <div class="sidebar-logo mb-2">
-                <i class="fas fa-hotel fa-2x text-white"></i>
-            </div>
-            <h4 class="text-white">پنل مدیریت هتل</h4>
-            <small class="text-muted">نسخه ۲.۱.۰</small>
-        </div>
+    <nav class="p-4 space-y-2">
+        <a href="{% url 'accounts:dashboard' %}" class="flex items-center space-x-2 space-x-reverse p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-blue-600 dark:text-blue-400">
+            <i class="ti ti-layout-dashboard"></i>
+            <span>داشبورد</span>
+        </a>
         
-        <!-- User Profile Mini Card -->
-        <div class="user-profile-card text-center p-3 mb-4" style="background-color: rgba(255,255,255,0.1); border-radius: 10px;">
-            <div class="user-avatar mb-2">
-                {% comment %} <img src="{% static 'img/default-avatar.png' %}" class="rounded-circle" width="60" height="60" alt="پروفایل کاربر"> {% endcomment %}
-            </div>
-            <h6 class="text-white mb-1">مدیر سیستم</h6>
-            <small class="text-muted">سطح دسترسی: مدیرکل</small>
-        </div>
-        
-        <!-- Main Navigation -->
-        <ul class="nav flex-column">
-            <li class="nav-item">
-                <a class="nav-link active" href="{% url 'accounts:dashboard' %}">
-                    <i class="fas fa-tachometer-alt ms-2"></i>
-                    داشبورد
-                    <span class="badge bg-success float-start">جدید</span>
+        <div class="py-2">
+            <h3 class="px-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">مدیریت</h3>
+            
+            <div class="mt-2 space-y-1">
+                <a href="{% url 'accounts:dashboard' %}" class="flex items-center space-x-2 space-x-reverse p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <i class="ti ti-calendar"></i>
+                    <span>رزرواسیون</span>
                 </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'bookings:list' %}">
-                    <i class="fas fa-calendar-check ms-2"></i>
-                    رزرواسیون
-                    <span class="badge bg-primary float-start">۱۵</span>
+                
+                <a href="{% url 'accounts:dashboard' %}" class="flex items-center space-x-2 space-x-reverse p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <i class="ti ti-bed"></i>
+                    <span>اتاق‌ها</span>
                 </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'rooms:list' %}">
-                    <i class="fas fa-bed ms-2"></i>
-                    اتاق‌ها
+                
+                <a href="{% url 'accounts:dashboard' %}" class="flex items-center space-x-2 space-x-reverse p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <i class="ti ti-users"></i>
+                    <span>میهمانان</span>
                 </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'accounts:dashboard' %}">
-                    <i class="fas fa-users ms-2"></i>
-                    مهمانان
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'accounts:dashboard' %}">
-                    <i class="fas fa-user-tie ms-2"></i>
-                    پرسنل
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'accounts:dashboard' %}">
-                    <i class="fas fa-concierge-bell ms-2"></i>
-                    خدمات
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'accounts:dashboard' %}">
-                    <i class="fas fa-swimming-pool ms-2"></i>
-                    امکانات
-                </a>
-            </li>
-        </ul>
-
-        <!-- Reports Section -->
-        <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-white">
-            <span>گزارشات و آمار</span>
-            <i class="fas fa-chart-pie"></i>
-        </h6>
-        <ul class="nav flex-column mb-2">
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'accounts:dashboard' %}">
-                    <i class="fas fa-chart-line ms-2"></i>
-                    میزان اشغال
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'accounts:dashboard' %}">
-                    <i class="fas fa-dollar-sign ms-2"></i>
-                    درآمد
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'accounts:dashboard' %}">
-                    <i class="fas fa-user-chart ms-2"></i>
-                    تحلیل مهمانان
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'accounts:dashboard' %}">
-                    <i class="fas fa-file-alt ms-2"></i>
-                    گزارش سفارشی
-                </a>
-            </li>
-        </ul>
-
-        <!-- Settings Section -->
-        <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-white">
-            <span>تنظیمات سیستم</span>
-            <i class="fas fa-cogs"></i>
-        </h6>
-        <ul class="nav flex-column mb-2">
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'accounts:dashboard' %}">
-                    <i class="fas fa-cog ms-2"></i>
-                    تنظیمات عمومی
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'accounts:dashboard' %}">
-                    <i class="fas fa-credit-card ms-2"></i>
-                    درگاه‌های پرداخت
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'accounts:dashboard' %}">
-                    <i class="fas fa-bell ms-2"></i>
-                    تنظیمات اعلانات
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'accounts:dashboard' %}">
-                    <i class="fas fa-database ms-2"></i>
-                    پشتیبان‌گیری
-                </a>
-            </li>
-        </ul>
-
-        <!-- Quick Actions (Visible only on desktop) -->
-        <div class="d-none d-md-block mt-4 p-3" style="background-color: rgba(255,255,255,0.05); border-radius: 8px;">
-            <h6 class="text-white mb-3">دسترسی سریع</h6>
-            <div class="d-grid gap-2">
-                <a href="{% url 'accounts:dashboard' %}" class="btn btn-sm btn-success">
-                    <i class="fas fa-plus ms-2"></i>
-                    رزرو جدید
-                </a>
-                <a href="{% url 'accounts:dashboard' %}" class="btn btn-sm btn-primary">
-                    <i class="fas fa-sign-in-alt ms-2"></i>
-                    ثبت ورود
-                </a>
-                <a href="{% url 'accounts:dashboard' %}" class="btn btn-sm btn-warning">
-                    <i class="fas fa-sign-out-alt ms-2"></i>
-                    ثبت خروج
+                
+                <a href="{% url 'accounts:dashboard' %}" class="flex items-center space-x-2 space-x-reverse p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <i class="ti ti-user-cog"></i>
+                    <span>کارکنان</span>
                 </a>
             </div>
         </div>
-    </div>
-
-    <!-- Sidebar Footer -->
-    <div class="sidebar-footer text-center p-3 d-none d-md-block">
-        <small class="text-muted">سیستم مدیریت هتل لوکس</small><br>
-        <small class="text-muted">© ۱۴۰۲ - تمامی حقوق محفوظ است</small>
-    </div>
-</nav>
-
-<!-- Mobile Overlay (Visible when sidebar is open on mobile) -->
-<div class="overlay d-md-none" id="sidebarOverlay"></div>
-
-<style>
-    /* Mobile sidebar styles */
-    @media (max-width: 767.98px) {
-        #sidebar {
-            position: fixed;
-            top: 0;
-            right: -300px;
-            bottom: 0;
-            z-index: 1050;
-            width: 280px;
-            transition: all 0.3s;
-            overflow-y: auto;
-        }
         
-        #sidebar.active {
-            right: 0;
-        }
+        <div class="py-2">
+            <h3 class="px-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">گزارشات</h3>
+            
+            <div class="mt-2 space-y-1">
+                <a href="{% url 'accounts:dashboard' %}" class="flex items-center space-x-2 space-x-reverse p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <i class="ti ti-chart-bar"></i>
+                    <span>اشغال اتاق‌ها</span>
+                </a>
+                
+                <a href="{% url 'accounts:dashboard' %}" class="flex items-center space-x-2 space-x-reverse p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <i class="ti ti-cash"></i>
+                    <span>درآمد</span>
+                </a>
+            </div>
+        </div>
         
-        .overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0,0,0,0.5);
-            z-index: 1040;
-            display: none;
-        }
-    }
-    
-    .sidebar-logo {
-        background-color: rgba(255,255,255,0.1);
-        width: 60px;
-        height: 60px;
-        margin: 0 auto;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    
-    .user-profile-card {
-        transition: all 0.3s;
-    }
-    
-    .user-profile-card:hover {
-        background-color: rgba(255,255,255,0.2) !important;
-        cursor: pointer;
-    }
-</style>
-
-<script>
-    // Mobile sidebar toggle functionality
-    document.addEventListener('DOMContentLoaded', function() {
-        const sidebar = document.getElementById('sidebar');
-        const overlay = document.getElementById('sidebarOverlay');
-        const toggleBtn = document.getElementById('sidebarCollapseMobile');
-        
-        // Toggle sidebar on mobile
-        toggleBtn.addEventListener('click', function() {
-            sidebar.classList.toggle('active');
-            overlay.style.display = sidebar.classList.contains('active') ? 'block' : 'none';
-        });
-        
-        // Close sidebar when clicking on overlay
-        overlay.addEventListener('click', function() {
-            sidebar.classList.remove('active');
-            overlay.style.display = 'none';
-        });
-        
-        // Close sidebar when clicking on a nav link (mobile)
-        document.querySelectorAll('#sidebar .nav-link').forEach(link => {
-            link.addEventListener('click', function() {
-                if (window.innerWidth < 768) {
-                    sidebar.classList.remove('active');
-                    overlay.style.display = 'none';
-                }
-            });
-        });
-    });
-</script>
+        <div class="py-2">
+            <h3 class="px-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">تنظیمات</h3>
+            
+            <div class="mt-2 space-y-1">
+                <a href="{% url 'accounts:dashboard' %}" class="flex items-center space-x-2 space-x-reverse p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <i class="ti ti-settings"></i>
+                    <span>عمومی</span>
+                </a>
+                
+                <a href="{% url 'accounts:dashboard' %}" class="flex items-center space-x-2 space-x-reverse p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <i class="ti ti-credit-card"></i>
+                    <span>پرداخت</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+</aside>

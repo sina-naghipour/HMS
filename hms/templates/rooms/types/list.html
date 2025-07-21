@@ -1,107 +1,52 @@
 {% extends "admin/base.html" %}
 
-{% block title %}مدیریت اتاق‌ها | انواع اتاق‌ها{% endblock %}
+{% block title %}انواع اتاق‌ها{% endblock %}
+{% block page_title %}لیست انواع اتاق{% endblock %}
 
 {% block breadcrumb %}
-<li class="breadcrumb-item"><a href="{% url 'accounts:dashboard' %}">داشبورد</a></li>
-<li class="breadcrumb-item active">انواع اتاق‌ها</li>
+{{ block.super }}
+<li class="breadcrumb-item active">انواع اتاق</li>
 {% endblock %}
 
 {% block content %}
-<div class="card shadow-sm">
-    <div class="card-header d-flex justify-content-between align-items-center" style="background-color: #27374D; color: white;">
-        <h4 class="mb-0">انواع اتاق‌ها</h4>
-        <div>
-            <a href="{% url 'accounts:dashboard' %}" class="btn btn-sm btn-success">
-                <i class="fas fa-plus ms-2"></i> افزودن نوع جدید
-            </a>
-        </div>
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5>انواع اتاق‌ها</h5>
+        <a href="{% url 'accounts:dashboard' %}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>نوع جدید
+        </a>
     </div>
-
     <div class="card-body">
-        <!-- Room Types Table -->
         <div class="table-responsive">
-            <table class="table table-hover align-middle">
-                <thead class="table-dark">
+            <table class="table table-hover">
+                <thead>
                     <tr>
-                        <th width="50px">#</th>
                         <th>نام</th>
-                        <th width="150px">تعداد اتاق‌ها</th>
-                        <th width="150px">میانگین قیمت</th>
-                        <th width="150px">عملیات</th>
+                        <th>ظرفیت</th>
+                        <th>قیمت شبانه</th>
+                        <th>تعداد اتاق‌ها</th>
+                        <th>عملیات</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for type in room_types %}
                     <tr>
-                        <td>{{ forloop.counter }}</td>
+                        <td>{{ type.name }}</td>
+                        <td>{{ type.capacity }} نفر</td>
+                        <td>{{ type.price }} تومان</td>
+                        <td>{{ type.rooms.count }}</td>
                         <td>
-                            <strong>{{ type.name }}</strong>
-                            {% if type.description %}
-                                <p class="text-muted small mb-0">{{ type.description|truncatechars:50 }}</p>
-                            {% endif %}
-                        </td>
-                        <td>{{ type.rooms.count }} اتاق</td>
-                        <td>
-                            {% if type.average_price %}
-                                {{ type.average_price|floatformat:"0" }} تومان
-                            {% else %}
-                                -
-                            {% endif %}
-                        </td>
-                        <td>
-                            <div class="btn-group btn-group-sm">
-                                <a href="{% url 'accounts:dashboard' %}" class="btn btn-info" title="مشاهده">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                                <a href="{% url 'accounts:dashboard' %}" class="btn btn-warning" title="ویرایش">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <button class="btn btn-danger" title="حذف" data-bs-toggle="modal" 
-                                        data-bs-target="#deleteModal{{ type.id }}">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                            
-                            <!-- Delete Modal -->
-                            <div class="modal fade" id="deleteModal{{ type.id }}" tabindex="-1" 
-                                 aria-labelledby="deleteModalLabel{{ type.id }}" aria-hidden="true" dir="rtl">
-                                <div class="modal-dialog">
-                                    <div class="modal-content">
-                                        <div class="modal-header bg-danger text-white">
-                                            <h5 class="modal-title" id="deleteModalLabel{{ type.id }}">حذف نوع اتاق</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <p>آیا از حذف نوع اتاق "{{ type.name }}" مطمئن هستید؟</p>
-                                            {% if type.rooms.count > 0 %}
-                                            <div class="alert alert-warning mt-3">
-                                                <i class="fas fa-exclamation-triangle me-2"></i>
-                                                این نوع دارای {{ type.rooms.count }} اتاق است و با حذف آن، تمام اتاق‌های مربوطه نیز حذف خواهند شد.
-                                            </div>
-                                            {% endif %}
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
-                                            <form method="post" action="{% url 'accounts:dashboard' %}">
-                                                {% csrf_token %}
-                                                <button type="submit" class="btn btn-danger">حذف نوع اتاق</button>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            <a href="{% url 'accounts:dashboard' %}" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="{% url 'accounts:dashboard' %}" class="btn btn-sm btn-outline-warning">
+                                <i class="fas fa-edit"></i>
+                            </a>
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="5" class="text-center py-4">
-                            <i class="fas fa-door-open fa-2x text-muted mb-3"></i>
-                            <p class="text-muted">هیچ نوع اتاقی ثبت نشده است</p>
-                            <a href="{% url 'accounts:dashboard' %}" class="btn btn-sm btn-success">
-                                <i class="fas fa-plus ms-2"></i> افزودن نوع جدید
-                            </a>
-                        </td>
+                        <td colspan="5" class="text-center">هیچ نوع اتاقی یافت نشد</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -109,20 +54,4 @@
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block extra_css %}
-<style>
-    .table-hover tbody tr {
-        transition: all 0.2s;
-    }
-    
-    .table-hover tbody tr:hover {
-        background-color: rgba(221, 230, 237, 0.5);
-    }
-    
-    .alert-warning {
-        background-color: rgba(255, 193, 7, 0.1);
-    }
-</style>
 {% endblock %}

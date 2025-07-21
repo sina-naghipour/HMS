@@ -1,83 +1,183 @@
-{% extends "admin/base.html" %}
+{% extends 'admin/base.html' %}
 
-{% block title %}داشبورد مدیریت{% endblock %}
+{% block title %}داشبورد مدیریت هتل{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-    <h1 class="h2">داشبورد مدیریت</h1>
-    <div class="btn-toolbar mb-2 mb-md-0">
-        <div class="btn-group me-2">
-            <button type="button" class="btn btn-sm btn-outline-secondary">خروجی Excel</button>
-        </div>
-    </div>
-</div>
-
-<div class="row mb-4">
-    <div class="col-md-3">
-        <div class="card text-white mb-3" style="background-color: #526D82;">
-            <div class="card-body">
-                <h5 class="card-title">میزان اشغال</h5>
-                <h2 class="card-text">۷۸٪</h2>
+<div class="space-y-6">
+    <h1 class="text-2xl font-bold">داشبورد مدیریت هتل</h1>
+    
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 dark:text-gray-400">اتاق‌های رزرو شده</p>
+                    <h3 class="text-2xl font-bold">۱۲۸</h3>
+                </div>
+                <div class="p-3 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300">
+                    <i class="ti ti-bed text-2xl"></i>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card text-white mb-3" style="background-color: #27374D;">
-            <div class="card-body">
-                <h5 class="card-title">ورودی‌های امروز</h5>
-                <h2 class="card-text">۱۲</h2>
+        
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 dark:text-gray-400">میهمانان امروز</p>
+                    <h3 class="text-2xl font-bold">۴۵</h3>
+                </div>
+                <div class="p-3 rounded-full bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300">
+                    <i class="ti ti-users text-2xl"></i>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card text-white mb-3" style="background-color: #9DB2BF;">
-            <div class="card-body">
-                <h5 class="card-title">اتاق‌های خالی</h5>
-                <h2 class="card-text">۲۴</h2>
+        
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 dark:text-gray-400">درآمد امروز</p>
+                    <h3 class="text-2xl font-bold">۱۲,۴۵۰,۰۰۰ تومان</h3>
+                </div>
+                <div class="p-3 rounded-full bg-yellow-100 dark:bg-yellow-900 text-yellow-600 dark:text-yellow-300">
+                    <i class="ti ti-currency-toman text-2xl"></i>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card text-white mb-3" style="background-color: #4361ee;">
-            <div class="card-body">
-                <h5 class="card-title">درآمد ماهانه</h5>
-                <h2 class="card-text">۴۲,۵۶۰ تومان</h2>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-md-8">
-        <div class="card mb-4">
-            <div class="card-header text-white" style="background-color: #526D82;">
-                <h5>نمودار میزان اشغال</h5>
-            </div>
-            <div class="card-body">
-                <canvas id="occupancyChart" height="250"></canvas>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card mb-4">
-            <div class="card-header text-white" style="background-color: #27374D;">
-                <h5>آخرین رزروها</h5>
-            </div>
-            <div class="card-body">
-                <div class="list-group">
-                    {% for booking in recent_bookings %}
-                    <a href="#" class="list-group-item list-group-item-action">
-                        <div class="d-flex w-100 justify-content-between">
-                            <h6 class="mb-1">اتاق #{{ booking.room.number }}</h6>
-                            <small>{{ booking.check_in|date:"M d" }}</small>
-                        </div>
-                        <p class="mb-1">{{ booking.guest.name }}</p>
-                        <small>وضعیت: {{ booking.get_status_display }}</small>
-                    </a>
-                    {% endfor %}
+        
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 dark:text-gray-400">اتاق‌های خالی</p>
+                    <h3 class="text-2xl font-bold">۲۴</h3>
+                </div>
+                <div class="p-3 rounded-full bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-300">
+                    <i class="ti ti-door text-2xl"></i>
                 </div>
             </div>
         </div>
     </div>
+    
+    <!-- Charts -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+            <h3 class="text-lg font-semibold mb-4">درآمد ماهانه</h3>
+            <canvas id="revenueChart" height="250"></canvas>
+        </div>
+        
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+            <h3 class="text-lg font-semibold mb-4">میزان اشغال اتاق‌ها</h3>
+            <canvas id="occupancyChart" height="250"></canvas>
+        </div>
+    </div>
+    
+    <!-- Recent Bookings -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+        <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+            <h3 class="text-lg font-semibold">رزروهای اخیر</h3>
+            <a href="{% url 'accounts:dashboard' %}" class="text-blue-600 dark:text-blue-400 hover:underline">مشاهده همه</a>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 data-table">
+                <thead class="bg-gray-50 dark:bg-gray-800">
+                    <tr>
+                        <th class="px-4 py-3 text-right">شماره رزرو</th>
+                        <th class="px-4 py-3 text-right">میهمان</th>
+                        <th class="px-4 py-3 text-right">اتاق</th>
+                        <th class="px-4 py-3 text-right">تاریخ ورود</th>
+                        <th class="px-4 py-3 text-right">تاریخ خروج</th>
+                        <th class="px-4 py-3 text-right">وضعیت</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    <!-- Sample data - replace with actual data -->
+                    <tr>
+                        <td class="px-4 py-3">#RES-2023-001</td>
+                        <td class="px-4 py-3">علی محمدی</td>
+                        <td class="px-4 py-3">۲۰۱ (سوئیت)</td>
+                        <td class="px-4 py-3">۱۴۰۲/۰۵/۱۵</td>
+                        <td class="px-4 py-3">۱۴۰۲/۰۵/۱۷</td>
+                        <td class="px-4 py-3"><span class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-full text-xs">تایید شده</span></td>
+                    </tr>
+                    <!-- More rows... -->
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
+
+<script>
+    // Revenue Chart
+    const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+    const revenueChart = new Chart(revenueCtx, {
+        type: 'line',
+        data: {
+            labels: ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر'],
+            datasets: [{
+                label: 'درآمد (میلیون تومان)',
+                data: [12, 19, 15, 22, 25, 28, 30],
+                borderColor: 'rgb(59, 130, 246)',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                tension: 0.3,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                    rtl: true
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+    
+    // Occupancy Chart
+    const occupancyCtx = document.getElementById('occupancyChart').getContext('2d');
+    const occupancyChart = new Chart(occupancyCtx, {
+        type: 'bar',
+        data: {
+            labels: ['سوئیت', 'دبل', 'سینگل', 'ویلا', 'خانواده'],
+            datasets: [{
+                label: 'میزان اشغال (%)',
+                data: [85, 72, 68, 90, 78],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.7)',
+                    'rgba(54, 162, 235, 0.7)',
+                    'rgba(255, 206, 86, 0.7)',
+                    'rgba(75, 192, 192, 0.7)',
+                    'rgba(153, 102, 255, 0.7)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                    rtl: true
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            }
+        }
+    });
+</script>
 {% endblock %}

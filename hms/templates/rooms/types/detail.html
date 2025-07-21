@@ -1,181 +1,82 @@
 {% extends "admin/base.html" %}
 
-{% block title %}مدیریت اتاق‌ها | جزئیات نوع اتاق{% endblock %}
+{% block title %}جزئیات نوع اتاق {{ type.name }}{% endblock %}
+{% block page_title %}جزئیات نوع اتاق{% endblock %}
 
 {% block breadcrumb %}
-<li class="breadcrumb-item"><a href="{% url 'accounts:dashboard' %}">داشبورد</a></li>
-<li class="breadcrumb-item"><a href="{% url 'accounts:dashboard' %}">انواع اتاق‌ها</a></li>
-<li class="breadcrumb-item active">جزئیات نوع اتاق</li>
+{{ block.super }}
+<li class="breadcrumb-item"><a href="{%  url 'accounts:dashboard' %}">انواع اتاق</a></li>
+<li class="breadcrumb-item active">جزئیات {{ type.name }}</li>
 {% endblock %}
 
 {% block content %}
-<div class="card shadow-sm">
-    <div class="card-header" style="background-color: #27374D; color: white;">
-        <h4 class="mb-0">جزئیات نوع اتاق: {{ room_type.name }}</h4>
-    </div>
-
-    <div class="card-body">
-        <div class="row">
-            <!-- Type Information -->
-            <div class="col-md-8">
-                <div class="card mb-4">
-                    <div class="card-header bg-light">
-                        <h5 class="mb-0">اطلاعات اصلی</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <p><strong>نام:</strong> {{ room_type.name }}</p>
-                                <p><strong>تعداد اتاق‌ها:</strong> {{ room_type.rooms.count }}</p>
-                            </div>
-                            <div class="col-md-6">
-                                <p><strong>میانگین قیمت:</strong> 
-                                    {% if room_type.average_price %}
-                                        {{ room_type.average_price|floatformat:"0" }} تومان
-                                    {% else %}
-                                        -
-                                    {% endif %}
-                                </p>
-                                <p><strong>ظرفیت استاندارد:</strong> 
-                                    {% if room_type.standard_capacity %}
-                                        {{ room_type.standard_capacity }} نفر
-                                    {% else %}
-                                        -
-                                    {% endif %}
-                                </p>
-                            </div>
-                        </div>
-                        
-                        {% if room_type.description %}
-                        <hr>
-                        <h6>توضیحات:</h6>
-                        <p>{{ room_type.description }}</p>
-                        {% endif %}
-                    </div>
-                </div>
-
-                <!-- Default Amenities -->
-                <div class="card">
-                    <div class="card-header bg-light">
-                        <h5 class="mb-0">امکانات پیش‌فرض</h5>
-                    </div>
-                    <div class="card-body">
-                        {% if room_type.default_amenities.all %}
-                            {% for amenity in room_type.default_amenities.all %}
-                                <span class="badge bg-secondary me-2">{{ amenity.name }}</span>
-                            {% endfor %}
-                        {% else %}
-                            <p class="text-muted">امکانات پیش‌فرضی تعریف نشده است</p>
-                        {% endif %}
-                    </div>
-                </div>
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5>اطلاعات نوع اتاق</h5>
             </div>
-
-            <!-- Sidebar - Actions and Rooms -->
-            <div class="col-md-4">
-                <!-- Quick Actions -->
-                <div class="card mb-4">
-                    <div class="card-header bg-light">
-                        <h5 class="mb-0">عملیات سریع</h5>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>نام:</strong> {{ type.name }}</p>
+                        <p><strong>ظرفیت:</strong> {{ type.capacity }} نفر</p>
+                        <p><strong>قیمت شبانه:</strong> {{ type.price }} تومان</p>
                     </div>
-                    <div class="card-body">
-                        <div class="d-grid gap-2">
-                            <a href="{% url 'accounts:dashboard' %}" class="btn btn-warning">
-                                <i class="fas fa-edit me-2"></i> ویرایش نوع اتاق
-                            </a>
-                            <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
-                                <i class="fas fa-trash me-2"></i> حذف نوع اتاق
-                            </button>
+                    <div class="col-md-6">
+                        <p><strong>تعداد اتاق‌ها:</strong> {{ type.rooms.count }}</p>
+                        <p><strong>تعداد تخت:</strong> {{ type.beds }}</p>
+                        <p><strong>اندازه:</strong> {{ type.size }} متر مربع</p>
+                    </div>
+                </div>
+                <hr>
+                <h5>امکانات</h5>
+                <div class="row">
+                    {% for amenity in type.amenities.all %}
+                    <div class="col-md-4">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            <span>{{ amenity.name }}</span>
                         </div>
                     </div>
-                </div>
-
-                <!-- Rooms of this type -->
-                <div class="card">
-                    <div class="card-header bg-light">
-                        <h5 class="mb-0">اتاق‌های این نوع</h5>
+                    {% empty %}
+                    <div class="col-12">
+                        <p class="text-muted">هیچ امکاناتی برای این نوع اتاق تعریف نشده است</p>
                     </div>
-                    <div class="card-body">
-                        {% if room_type.rooms.all %}
-                            <div class="list-group">
-                                {% for room in room_type.rooms.all|slice:":5" %}
-                                <a href="{% url 'accounts:dashboard' %}" class="list-group-item list-group-item-action">
-                                    <div class="d-flex w-100 justify-content-between">
-                                        <h6 class="mb-1">اتاق {{ room.number }}</h6>
-                                        <span class="badge 
-                                            {% if room.status == 'available' %}bg-success
-                                            {% elif room.status == 'booked' %}bg-primary
-                                            {% elif room.status == 'occupied' %}bg-info
-                                            {% else %}bg-danger
-                                            {% endif %}">
-                                            {{ room.get_status_display }}
-                                        </span>
-                                    </div>
-                                    <p class="mb-1 small">{{ room.price|floatformat:"0" }} تومان</p>
-                                </a>
-                                {% endfor %}
-                            </div>
-                            
-                            {% if room_type.rooms.count > 5 %}
-                            <div class="text-center mt-3">
-                                <a href="{% url 'accounts:dashboard' %}" class="btn btn-sm btn-outline-primary">
-                                    مشاهده همه ({{ room_type.rooms.count }})
-                                </a>
-                            </div>
-                            {% endif %}
-                        {% else %}
-                            <p class="text-muted">اتاقی با این نوع ثبت نشده است</p>
-                        {% endif %}
-                    </div>
+                    {% endfor %}
                 </div>
+                <hr>
+                <h5>توضیحات</h5>
+                <p>{{ type.description|default:"توضیحاتی ثبت نشده است" }}</p>
             </div>
         </div>
     </div>
-</div>
-
-<!-- Delete Modal -->
-<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true" dir="rtl">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title" id="deleteModalLabel">حذف نوع اتاق</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5>اتاق‌های این نوع</h5>
             </div>
-            <div class="modal-body">
-                <p>آیا از حذف نوع اتاق "{{ room_type.name }}" مطمئن هستید؟</p>
-                {% if room_type.rooms.count > 0 %}
-                <div class="alert alert-warning mt-3">
-                    <i class="fas fa-exclamation-triangle me-2"></i>
-                    این نوع دارای {{ room_type.rooms.count }} اتاق است و با حذف آن، تمام اتاق‌های مربوطه نیز حذف خواهند شد.
+            <div class="card-body">
+                {% if type.rooms.exists %}
+                <div class="list-group">
+                    {% for room in type.rooms.all|slice:":10" %}
+                    <a href="{% url 'accounts:dashboard' %}" class="list-group-item list-group-item-action">
+                        <div class="d-flex justify-content-between">
+                            <span>اتاق {{ room.number }}</span>
+                            {% if room.is_available %}
+                            <span class="badge bg-success">آزاد</span>
+                            {% else %}
+                            <span class="badge bg-danger">اشغال</span>
+                            {% endif %}
+                        </div>
+                    </a>
+                    {% endfor %}
                 </div>
+                {% else %}
+                <p class="text-muted">هیچ اتاقی با این نوع ثبت نشده است</p>
                 {% endif %}
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
-                <form method="post" action="{% url 'accounts:dashboard' %}">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-danger">حذف نوع اتاق</button>
-                </form>
-            </div>
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block extra_css %}
-<style>
-    .list-group-item {
-        border-right: none;
-        border-left: 3px solid #27374D;
-    }
-    
-    .badge {
-        font-size: 0.75rem;
-        padding: 0.35em 0.65em;
-    }
-    
-    .card-header h5 {
-        font-weight: 600;
-    }
-</style>
 {% endblock %}
