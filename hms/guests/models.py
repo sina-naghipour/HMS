@@ -1,7 +1,6 @@
 from django.db import models
 from django.core.validators import RegexValidator
 from django.utils.translation import gettext_lazy as _
-from bookings.models import Booking
 
 class Guest(models.Model):
     GENDER_CHOICES = [
@@ -40,12 +39,11 @@ class Guest(models.Model):
     email = models.EmailField(_('Email'), blank=True)
     address = models.TextField(_('Address'), blank=True)
     booking = models.ForeignKey(
-        Booking,
+        'bookings.Booking',
         verbose_name=_('Booking'),
         on_delete=models.CASCADE,
         related_name='guests',
         null=True,
-        blank=True
     )
     is_primary = models.BooleanField(_('Primary Guest'), default=False)
     created_at = models.DateTimeField(_('Created At'), auto_now_add=True)

@@ -18,6 +18,13 @@
                 fontFamily: {
                     sans: ['Vazir', 'sans-serif'],
                 },
+                extend: {
+                    colors: {
+                        dark: {
+                            background: '#1B3C53' !important,
+                        }
+                    }
+                }
             },
             plugins: [require('@tailwindcss/forms'), require('@tailwindcss/typography')],
         }
@@ -33,8 +40,22 @@
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons@latest/iconfont/tabler-icons.min.css">
-
+<script src="https://cdn.jsdelivr.net/npm/persian-date@1.1.0/dist/persian-date.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/persian-datepicker@2.0.1/dist/js/persian-datepicker.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/persian-datepicker@2.0.1/dist/css/persian-datepicker.min.css">
     <style>
+            html {
+        transition: color 300ms, background-color 300ms;
+    }
+    
+    body {
+        transition: color 300ms, background-color 300ms;
+    }
+    
+    /* Fix for icon transitions */
+    #light-icon, #dark-icon {
+        transition: opacity 300ms;
+    }
         [dir="rtl"] .ti-chevron-right:before {
             content: "\eb9e";
         }
@@ -42,10 +63,14 @@
         [dir="rtl"] .ti-chevron-left:before {
             content: "\eb9d";
         }
+        
+        .dark {
+            background-color: #1B3C53 !important;
+        }
     </style>
 </head>
 
-<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 transition-colors duration-300">
+<body class="bg-gray-100 dark:bg-dark-background text-gray-800 dark:text-gray-200 transition-colors duration-300">
     <div class="min-h-screen flex flex-col">
         {% include 'admin/includes/navbar.html' %}
 
@@ -94,6 +119,51 @@
                 profileMenu.classList.add('hidden');
             }
         });
+            // Theme switcher with improved reliability
+    function toggleTheme() {
+        const html = document.documentElement;
+        const isDark = html.classList.contains('dark');
+        
+        // Toggle the dark class
+        html.classList.toggle('dark');
+        
+        // Update localStorage
+        localStorage.setItem('darkMode', !isDark);
+        
+        // Update icons visibility
+        document.getElementById('light-icon').classList.toggle('hidden');
+        document.getElementById('dark-icon').classList.toggle('hidden');
+    }
+
+    // Initialize theme on load
+    document.addEventListener('DOMContentLoaded', function() {
+        // Check for saved theme preference
+        const savedTheme = localStorage.getItem('darkMode');
+        const html = document.documentElement;
+        
+        // Set initial theme based on preference or system preference
+        if (savedTheme === 'true' || 
+            (savedTheme === null && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            html.classList.add('dark');
+            document.getElementById('light-icon').classList.add('hidden');
+            document.getElementById('dark-icon').classList.remove('hidden');
+        } else {
+            html.classList.remove('dark');
+            document.getElementById('light-icon').classList.remove('hidden');
+            document.getElementById('dark-icon').classList.add('hidden');
+        }
+        
+        // Watch for system theme changes
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+            if (localStorage.getItem('darkMode') === null) {
+                if (e.matches) {
+                    html.classList.add('dark');
+                } else {
+                    html.classList.remove('dark');
+                }
+            }
+        });
+    });
     </script>
 </body>
 

@@ -26,8 +26,7 @@ class LoginRequiredMiddleware:
             reverse('bookings:create'),
             reverse('bookings:calendar'),
             reverse('guests:list'),
-            reverse('guests:detail'),
-            reverse('guests:create'),
+            reverse('guests:detail', kwargs={'pk' : 0}),
             reverse('reports:occupancy'),
             reverse('reports:revenue'),
             reverse('reports:custom'),
@@ -42,7 +41,10 @@ class LoginRequiredMiddleware:
             reverse('settings:payment'),
             reverse('settings:email'),
             reverse('staff:list'),
-            reverse('staff:detail'),
+            reverse('staff:detail', kwargs={'pk' : 0}),
+            reverse('staff:edit', kwargs={'pk' : 0}),
+            reverse('staff:delete', kwargs={'pk' : 0}),
+            reverse('staff:create'),
             
         ]
         

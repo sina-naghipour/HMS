@@ -1,0 +1,130 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}ویرایش رزرو #{{ booking.id }}{% endblock %}
+
+{% block breadcrumb %}
+<li aria-current="page">
+    <div class="flex items-center">
+        <i class="ti ti-chevron-left text-gray-400 mx-1"></i>
+        <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">مدیریت رزروها</span>
+    </div>
+</li>
+<li aria-current="page">
+    <div class="flex items-center">
+        <i class="ti ti-chevron-left text-gray-400 mx-1"></i>
+        <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">ویرایش رزرو</span>
+    </div>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="flex justify-between items-center">
+        <h1 class="text-2xl font-bold">ویرایش رزرو #{{ booking.id }}</h1>
+    </div>
+
+    <form method="post" class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        {% csrf_token %}
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <!-- Enhanced Room Selection -->
+            <div>
+                <label for="id_room" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">اتاق</label>
+                <select id="id_room" name="room" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+                    <!-- Current room (always selected by default) -->
+                    <option value="{{ booking.room.id }}" selected>
+                        {{ booking.room.number }} ({{ booking.room.type }}) - ظرفیت: {{ booking.room.capacity }} نفر (فعلی)
+                    </option>
+                    
+                    <!-- Available rooms except current one -->
+                    {% for room in available_rooms %}
+                        {% if room.id != booking.room.id %}
+                        <option value="{{ room.id }}">
+                            {{ room.number }} ({{ room.type }}) - ظرفیت: {{ room.capacity }} نفر
+                        </option>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    <!-- Show if current room isn't in available rooms -->
+                    {% if booking.room not in available_rooms %}
+                        <option disabled>─── اتاق‌های دیگر ───</option>
+                        {% for room in all_rooms %}
+                            {% if room.id != booking.room.id and room.status == 'available' %}
+                            <option value="{{ room.id }}">
+                                {{ room.number }} ({{ room.type }}) - ظرفیت: {{ room.capacity }} نفر
+                            </option>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                </select>
+                
+                {% if booking.room not in available_rooms %}
+                <p class="mt-2 text-sm text-yellow-600 dark:text-yellow-400">
+                    <i class="ti ti-alert-triangle"></i> اتاق فعلی در حال حاضر در دسترس نیست
+                </p>
+                {% endif %}
+            </div>
+            
+            <!-- Check-in Date -->
+            <div>
+                <label for="id_check_in" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">تاریخ ورود</label>
+                <input type="date" id="id_check_in" name="check_in" value="{{ booking.check_in|date:'Y-m-d' }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+            </div>
+            
+            <!-- Check-out Date -->
+            <div>
+                <label for="id_check_out" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">تاریخ خروج</label>
+                <input type="date" id="id_check_out" name="check_out" value="{{ booking.check_out|date:'Y-m-d' }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+            </div>
+            
+            <!-- Status -->
+            <div>
+                <label for="id_status" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">وضعیت</label>
+                <select id="id_status" name="status" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                    <option value="reserved" {% if booking.status == 'reserved' %}selected{% endif %}>رزرو شده</option>
+                    <option value="checked_in" {% if booking.status == 'checked_in' %}selected{% endif %}>تسویه شده</option>
+                    <option value="cancelled" {% if booking.status == 'cancelled' %}selected{% endif %}>لغو شده</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Special Requests -->
+        <div class="mb-6">
+            <label for="id_special_requests" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">درخواست‌های ویژه</label>
+            <textarea id="id_special_requests" name="special_requests" rows="3" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">{{ booking.special_requests }}</textarea>
+        </div>
+        
+        <div class="mt-6 flex justify-end space-x-3 space-x-reverse">
+            <a href="{% url 'bookings:list' %}" class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 px-4 py-2 rounded-lg">
+                انصراف
+            </a>
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
+                ذخیره تغییرات
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Date validation
+    const checkInInput = document.getElementById('id_check_in');
+    const checkOutInput = document.getElementById('id_check_out');
+    
+    function validateDates() {
+        if (checkInInput.value && checkOutInput.value) {
+            const checkIn = new Date(checkInInput.value);
+            const checkOut = new Date(checkOutInput.value);
+            
+            if (checkOut <= checkIn) {
+                alert('تاریخ خروج باید بعد از تاریخ ورود باشد');
+                checkOutInput.value = '';
+            }
+        }
+    }
+    
+    checkInInput.addEventListener('change', validateDates);
+    checkOutInput.addEventListener('change', validateDates);
+});
+</script>
+{% endblock %}

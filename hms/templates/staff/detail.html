@@ -1,6 +1,6 @@
 {% extends 'admin/base.html' %}
 
-{% block title %}پروفایل کارمند - {{ staff.full_name }}{% endblock %}
+{% block title %}پروفایل کارمند - {{ staff.get_full_name }}{% endblock %}
 
 {% block breadcrumb %}
 <li aria-current="page">
@@ -22,10 +22,12 @@
     <div class="flex justify-between items-center">
         <h1 class="text-2xl font-bold">پروفایل کارمند</h1>
         <div class="flex items-center space-x-2 space-x-reverse">
-            <a href="{% url 'accounts:dashboard' %}" class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 px-4 py-2 rounded-lg">
+            <a href="{% url 'staff:list' %}"
+                class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 px-4 py-2 rounded-lg">
                 بازگشت
             </a>
-            <a href="{% url 'accounts:dashboard' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
+            <a href="{% url 'staff:edit' staff.pk %}"
+                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
                 ویرایش پروفایل
             </a>
         </div>
@@ -35,21 +37,22 @@
         <div class="lg:col-span-2 space-y-6">
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
                 <div class="flex items-start space-x-4 space-x-reverse">
-                    <img src="{{ staff.profile_image|default:'https://randomuser.me/api/portraits/men/1.jpg' }}" alt="{{ staff.full_name }}" class="w-16 h-16 rounded-full">
+                    <img src="https://ui-avatars.com/api/?name={{ staff.first_name|urlencode }}+{{ staff.last_name|urlencode }}&background=random"
+                        alt="{{ staff.get_full_name }}" class="w-16 h-16 rounded-full">
                     <div>
-                        <h2 class="text-xl font-bold">{{ staff.full_name }}</h2>
-                        <p class="text-gray-500 dark:text-gray-400">کد پرسنلی: {{ staff.employee_id }}</p>
+                        <h2 class="text-xl font-bold">{{ staff.get_full_name }}</h2>
+                        <p class="text-gray-500 dark:text-gray-400">{{ staff.email }}</p>
                         <div class="mt-2 flex flex-wrap gap-2">
-                            <span class="px-2 py-1 {{ staff.department.color_class }} rounded-full text-xs">
-                                {{ staff.department.name }}
-                            </span>
-                            {% if staff.is_active %}
-                            <span class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-full text-xs">فعال</span>
-                            {% else %}
-                            <span class="px-2 py-1 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 rounded-full text-xs">غیرفعال</span>
+                            {% if staff.is_staff %}
+                            <span
+                                class="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-xs">کارمند</span>
                             {% endif %}
-                            {% if staff.is_manager %}
-                            <span class="px-2 py-1 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 rounded-full text-xs">مدیر</span>
+                            {% if staff.is_active %}
+                            <span
+                                class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-full text-xs">فعال</span>
+                            {% else %}
+                            <span
+                                class="px-2 py-1 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 rounded-full text-xs">غیرفعال</span>
                             {% endif %}
                         </div>
                     </div>
@@ -57,123 +60,140 @@
 
                 <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <p class="text-gray-500 dark:text-gray-400">سمت</p>
-                        <p class="font-medium">{{ staff.position }}</p>
+                        <p class="text-gray-500 dark:text-gray-400">نام کاربری</p>
+                        <p class="font-medium">{{ staff.username }}</p>
                     </div>
                     <div>
-                        <p class="text-gray-500 dark:text-gray-400">تاریخ استخدام</p>
-                        <p class="font-medium">{{ staff.hire_date|date:"Y/m/d" }}</p>
+                        <p class="text-gray-500 dark:text-gray-400">تاریخ عضویت</p>
+                        <p class="font-medium">{{ staff.date_joined|date:"Y/m/d" }}</p>
                     </div>
                     <div>
-                        <p class="text-gray-500 dark:text-gray-400">تلفن</p>
-                        <p class="font-medium">{{ staff.phone }}</p>
+                        <p class="text-gray-500 dark:text-gray-400">آخرین ورود</p>
+                        <p class="font-medium">
+                            {% if staff.last_login %}
+                            {{ staff.last_login|date:"Y/m/d H:i" }}
+                            {% else %}
+                            هنوز وارد نشده
+                            {% endif %}
+                        </p>
                     </div>
                     <div>
-                        <p class="text-gray-500 dark:text-gray-400">ایمیل</p>
-                        <p class="font-medium">{{ staff.email|default:"-" }}</p>
-                    </div>
-                    <div>
-                        <p class="text-gray-500 dark:text-gray-400">تاریخ تولد</p>
-                        <p class="font-medium">{{ staff.birth_date|date:"Y/m/d"|default:"-" }}</p>
-                    </div>
-                    <div>
-                        <p class="text-gray-500 dark:text-gray-400">جنسیت</p>
-                        <p class="font-medium">{{ staff.get_gender_display|default:"-" }}</p>
-                    </div>
-                    <div class="md:col-span-2">
-                        <p class="text-gray-500 dark:text-gray-400">آدرس</p>
-                        <p class="font-medium">{{ staff.address|default:"-" }}</p>
+                        <p class="text-gray-500 dark:text-gray-400">تعداد رزروها</p>
+                        <p class="font-medium">{{ staff.bookings.count }}</p>
                     </div>
                 </div>
             </div>
 
+            <!-- Bookings Section -->
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-                <h2 class="text-xl font-semibold mb-4">اطلاعات حقوق و دستمزد</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <p class="text-gray-500 dark:text-gray-400">نوع قرارداد</p>
-                        <p class="font-medium">{{ staff.get_contract_type_display }}</p>
-                    </div>
-                    <div>
-                        <p class="text-gray-500 dark:text-gray-400">حقوق پایه</p>
-                        <p class="font-medium">{{ staff.base_salary|floatformat:"0" }} تومان</p>
-                    </div>
-                    <div>
-                        <p class="text-gray-500 dark:text-gray-400">حساب بانکی</p>
-                        <p class="font-medium">{{ staff.bank_account|default:"-" }}</p>
-                    </div>
-                    <div>
-                        <p class="text-gray-500 dark:text-gray-400">شماره بیمه</p>
-                        <p class="font-medium">{{ staff.insurance_number|default:"-" }}</p>
-                    </div>
+                <h2 class="text-xl font-semibold mb-4">رزروهای انجام شده</h2>
+
+                {% if staff.bookings.all %}
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                        <thead class="bg-gray-50 dark:bg-gray-800">
+                            <tr>
+                                <th class="px-4 py-3 text-right">شماره رزرو</th>
+                                <th class="px-4 py-3 text-right">اتاق</th>
+                                <th class="px-4 py-3 text-right">تاریخ ورود</th>
+                                <th class="px-4 py-3 text-right">تاریخ خروج</th>
+                                <th class="px-4 py-3 text-right">وضعیت</th>
+                                <th class="px-4 py-3 text-right">مبلغ</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                            {% for booking in staff.bookings.all %}
+                            <tr>
+                                <td class="px-4 py-3">
+                                    <a href="{% url 'bookings:detail' booking.id %}"
+                                        class="text-blue-600 hover:underline">
+                                        #{{ booking.id }}
+                                    </a>
+                                </td>
+                                <td class="px-4 py-3">{{ booking.room.number }}</td>
+                                <td class="px-4 py-3">{{ booking.check_in|date:"Y/m/d" }}</td>
+                                <td class="px-4 py-3">{{ booking.check_out|date:"Y/m/d" }}</td>
+                                <td class="px-4 py-3">
+                                    {% if booking.status == 'confirmed' %}
+                                    <span
+                                        class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-full text-xs">تایید
+                                        شده</span>
+                                    {% elif booking.status == 'checked_in' %}
+                                    <span
+                                        class="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-xs">در
+                                        حال اقامت</span>
+                                    {% elif booking.status == 'checked_out' %}
+                                    <span
+                                        class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-full text-xs">تکمیل
+                                        شده</span>
+                                    {% elif booking.status == 'cancelled' %}
+                                    <span
+                                        class="px-2 py-1 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 rounded-full text-xs">لغو
+                                        شده</span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-4 py-3">{{ booking.total_price|floatformat:0 }} تومان</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
+                {% else %}
+                <div class="text-center py-4 text-gray-500 dark:text-gray-400">
+                    <i class="ti ti-calendar-off text-2xl mb-2"></i>
+                    <p>هیچ رزروی یافت نشد</p>
+                </div>
+                {% endif %}
             </div>
         </div>
 
         <div class="space-y-6">
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-                <h2 class="text-xl font-semibold mb-4">وظایف و مسئولیت‌ها</h2>
-                <ul class="space-y-2">
-                    {% for responsibility in staff.responsibilities.all %}
-                    <li class="flex items-start space-x-2 space-x-reverse">
-                        <i class="ti ti-check text-green-500 mt-0.5"></i>
-                        <span>{{ responsibility.name }}</span>
-                    </li>
-                    {% empty %}
-                    <p class="text-gray-500 dark:text-gray-400">مسئولیتی تعریف نشده است</p>
-                    {% endfor %}
-                </ul>
-            </div>
-
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-                <h2 class="text-xl font-semibold mb-4">مدارک ضمیمه</h2>
+                <h2 class="text-xl font-semibold mb-4">دسترسی‌ها</h2>
                 <div class="space-y-3">
-                    {% for document in staff.documents.all %}
-                    <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-3 flex items-center justify-between">
-                        <div class="flex items-center space-x-2 space-x-reverse">
-                            <i class="ti ti-file-text text-blue-500"></i>
-                            <span>{{ document.name }}</span>
-                        </div>
-                        <a href="{{ document.file.url }}" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300" download>
-                            <i class="ti ti-download"></i>
-                        </a>
+                    {% if staff.is_superuser %}
+                    <div class="flex items-center space-x-2 space-x-reverse text-green-600 dark:text-green-400">
+                        <i class="ti ti-shield-check"></i>
+                        <span>دسترسی کامل به سیستم</span>
                     </div>
-                    {% empty %}
-                    <div class="text-center text-gray-500 dark:text-gray-400 py-4">
-                        <i class="ti ti-folder-off text-2xl mb-2"></i>
-                        <p>مدرکی وجود ندارد</p>
+                    {% endif %}
+
+                    <div class="flex items-center space-x-2 space-x-reverse">
+                        <i class="ti ti-{% if staff.is_staff %}check{% else %}x{% endif %}"></i>
+                        <span>دسترسی کارمندی</span>
                     </div>
-                    {% endfor %}
+
+                    <div class="flex items-center space-x-2 space-x-reverse">
+                        <i class="ti ti-{% if staff.is_active %}check{% else %}x{% endif %}"></i>
+                        <span>حساب فعال</span>
+                    </div>
                 </div>
             </div>
 
+            <!-- Stats Section -->
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-                <h2 class="text-xl font-semibold mb-4">تاریخچه فعالیت</h2>
+                <h2 class="text-xl font-semibold mb-4">آمار رزروها</h2>
                 <div class="space-y-4">
-                    {% for activity in staff.recent_activities %}
-                    <div class="flex items-start space-x-3 space-x-reverse">
-                        <div class="flex-shrink-0 mt-0.5">
-                            <div class="w-2 h-2 rounded-full bg-blue-500"></div>
-                        </div>
-                        <div>
-                            <p class="font-medium">{{ activity.title }}</p>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">{{ activity.date|date:"Y/m/d H:i" }}</p>
-                            {% if activity.description %}
-                            <p class="text-sm mt-1">{{ activity.description }}</p>
-                            {% endif %}
-                        </div>
+                    <div>
+                        <p class="text-gray-500 dark:text-gray-400">کل رزروها</p>
+                        <p class="font-medium text-2xl">{{ total_bookings }}</p>
                     </div>
-                    {% empty %}
-                    <div class="text-center text-gray-500 dark:text-gray-400 py-4">
-                        <i class="ti ti-notes-off text-2xl mb-2"></i>
-                        <p>فعالیتی ثبت نشده است</p>
+                    <div>
+                        <p class="text-gray-500 dark:text-gray-400">رزروهای فعال</p>
+                        <p class="font-medium">{{ active_bookings }}</p>
                     </div>
-                    {% endfor %}
-                    {% if staff.activities_count > 3 %}
-                    <a href="#" class="text-blue-600 dark:text-blue-400 text-sm text-center block mt-2">
-                        مشاهده همه ({{ staff.activities_count }} فعالیت)
-                    </a>
-                    {% endif %}
+                    <div>
+                        <p class="text-gray-500 dark:text-gray-400">رزروهای تکمیل شده</p>
+                        <p class="font-medium">{{ completed_bookings }}</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-500 dark:text-gray-400">رزروهای لغو شده</p>
+                        <p class="font-medium">{{ cancelled_bookings }}</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-500 dark:text-gray-400">درآمد ایجاد شده</p>
+                        <p class="font-medium">{{ total_revenue|floatformat:0 }} تومان</p>
+                    </div>
                 </div>
             </div>
         </div>

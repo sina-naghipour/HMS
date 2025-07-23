@@ -19,14 +19,6 @@
 
 {% block content %}
 <div class="space-y-6">
-    <div class="flex justify-between items-center">
-        <h1 class="text-2xl font-bold">لیست میهمانان</h1>
-        <a href="{% url 'accounts:dashboard' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center space-x-1 space-x-reverse">
-            <i class="ti ti-plus"></i>
-            <span>میهمان جدید</span>
-        </a>
-    </div>
-
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
         <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
             <div class="flex items-center space-x-4 space-x-reverse">
@@ -38,7 +30,6 @@
                     <option>همه میهمانان</option>
                     <option>میهمانان فعلی</option>
                     <option>میهمانان وفادار</option>
-                    <option>مسافران تجاری</option>
                 </select>
             </div>
             <button class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
@@ -47,31 +38,51 @@
         </div>
         
         <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 data-table">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                 <thead class="bg-gray-50 dark:bg-gray-800">
                     <tr>
                         <th class="px-4 py-3 text-right">نام</th>
                         <th class="px-4 py-3 text-right">کد ملی</th>
                         <th class="px-4 py-3 text-right">تلفن</th>
                         <th class="px-4 py-3 text-right">ایمیل</th>
-                        <th class="px-4 py-3 text-right">تعداد اقامت‌ها</th>
+                        <th class="px-4 py-3 text-right">جنسیت</th>
+                        <th class="px-4 py-3 text-right">شناسه رزرو</th>
                         <th class="px-4 py-3 text-right">وضعیت</th>
                         <th class="px-4 py-3 text-right">عملیات</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                    {% for guest in guests %}
+                    {% for guest in page_obj %}  <!-- Changed from guests to page_obj -->
                     <tr>
                         <td class="px-4 py-3">
                             <div class="flex items-center space-x-3 space-x-reverse">
-                                <img src="{{ guest.profile_image|default:'https://randomuser.me/api/portraits/men/1.jpg' }}" alt="{{ guest.full_name }}" class="w-8 h-8 rounded-full">
+                                <img src="https://ui-avatars.com/api/?name={{ guest.first_name|urlencode }}+{{ guest.last_name|urlencode }}&background=random" 
+                                     alt="{{ guest.full_name }}" 
+                                     class="w-8 h-8 rounded-full">
                                 <span>{{ guest.full_name }}</span>
                             </div>
                         </td>
                         <td class="px-4 py-3">{{ guest.national_id|default:"-" }}</td>
                         <td class="px-4 py-3">{{ guest.phone }}</td>
                         <td class="px-4 py-3">{{ guest.email|default:"-" }}</td>
-                        <td class="px-4 py-3">{{ guest.stays_count }} بار</td>
+                        <td class="px-4 py-3">
+                            {% if guest.gender == 'M' %}
+                                مرد
+                            {% elif guest.gender == 'F' %}
+                                زن
+                            {% else %}
+                                سایر
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-3">
+                            {% if guest.booking %}
+                                <a href="{% url 'bookings:detail' guest.booking.id %}" class="text-blue-600 hover:underline">
+                                    #{{ guest.booking.id }}
+                                </a>
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
                         <td class="px-4 py-3">
                             {% if guest.is_current_guest %}
                             <span class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-full text-xs">مهمان فعلی</span>
@@ -81,22 +92,64 @@
                         </td>
                         <td class="px-4 py-3">
                             <div class="flex items-center space-x-2 space-x-reverse">
-                                <a href="{% url 'accounts:dashboard' %}" class="text-blue-600 hover:text-blue-800 dark:hover:text-blue-400" title="مشاهده">
+                                <a href="{% url 'guests:detail' guest.id %}" 
+                                   class="text-blue-600 hover:text-blue-800 dark:hover:text-blue-400" 
+                                   title="مشاهده">
                                     <i class="ti ti-eye"></i>
                                 </a>
-                                <a href="{% url 'accounts:dashboard' %}" class="text-gray-600 hover:text-gray-800 dark:hover:text-gray-400" title="ویرایش">
-                                    <i class="ti ti-edit"></i>
-                                </a>
-                                <a href="#" class="text-red-600 hover:text-red-800 dark:hover:text-red-400" title="حذف">
-                                    <i class="ti ti-trash"></i>
-                                </a>
                             </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="px-4 py-3 text-center text-gray-500 dark:text-gray-400">
+                            هیچ میهمانی یافت نشد
                         </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
+
+        <!-- Pagination Controls -->
+        {% if page_obj.paginator.num_pages > 1 %}
+        <div class="px-4 py-3 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
+            <div class="text-sm text-gray-500 dark:text-gray-400">
+                نمایش <span class="font-medium">{{ page_obj.start_index }}</span> تا <span class="font-medium">{{ page_obj.end_index }}</span> از <span class="font-medium">{{ page_obj.paginator.count }}</span> میهمان
+            </div>
+            <div class="flex space-x-2 space-x-reverse">
+                {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}" class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                        قبلی
+                    </a>
+                {% else %}
+                    <span class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-400 dark:text-gray-500 cursor-not-allowed">
+                        قبلی
+                    </span>
+                {% endif %}
+                
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <span class="px-3 py-1 bg-blue-600 text-white rounded-lg">{{ num }}</span>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <a href="?page={{ num }}" class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                            {{ num }}
+                        </a>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}" class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                        بعدی
+                    </a>
+                {% else %}
+                    <span class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-400 dark:text-gray-500 cursor-not-allowed">
+                        بعدی
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

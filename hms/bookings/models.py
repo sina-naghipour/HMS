@@ -10,13 +10,7 @@ class Booking(models.Model):
         ('checked_out', _('Checked Out')),
         ('cancelled', _('Cancelled')),
     ]
-    
-    guest = models.ForeignKey(
-        Guest,
-        on_delete=models.PROTECT,
-        verbose_name=_('Guest'),
-        related_name='bookings'
-    )
+
     room = models.ForeignKey(
         Room,
         on_delete=models.PROTECT,
@@ -31,6 +25,19 @@ class Booking(models.Model):
         choices=STATUS_CHOICES,
         default='reserved'
     )
+    primary_guest = models.ForeignKey(
+        'guests.Guest',
+        on_delete=models.PROTECT,
+        related_name='primary_bookings',
+        null=False
+    )
+    assigned_staff = models.ForeignKey(
+        'accounts.CustomUser',
+        on_delete=models.PROTECT,
+        related_name='staff_bookings',
+        null=False,
+    )
+    is_trash = models.BooleanField(default=False)
     special_requests = models.TextField(_('Special Requests'), blank=True)
     created_at = models.DateTimeField(_('Created At'), auto_now_add=True)
     updated_at = models.DateTimeField(_('Updated At'), auto_now=True)
@@ -44,11 +51,15 @@ class Booking(models.Model):
                 fields=['room', 'check_in', 'check_out'],
                 name='unique_booking_per_room_dates',
                 condition=models.Q(status__in=['reserved', 'checked_in'])
+            ),
+            models.CheckConstraint(
+                check=models.Q(check_in__lt=models.F('check_out')),
+                name='check_in_before_check_out'
             )
         ]
 
     def __str__(self):
-        return f"Booking #{self.id} - {self.guest} ({self.room})"
+        return f"Booking #{self.id} - {self.guests} ({self.room})"
 
     @property
     def nights(self):

@@ -25,7 +25,7 @@
             <button id="prev-month" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
                 <i class="ti ti-chevron-right"></i>
             </button>
-            <h2 id="current-month" class="text-xl font-semibold">مرداد ۱۴۰۲</h2>
+            <h2 id="current-month" class="text-xl font-semibold">{{ current_month }}</h2>
             <button id="next-month" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
                 <i class="ti ti-chevron-left"></i>
             </button>
@@ -47,118 +47,87 @@
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/fa.min.js"></script>
 
+
+
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const calendarEl = document.getElementById('calendar');
-        
-        // Sample dummy data for bookings
-        const dummyBookings = [
-            {
-                title: 'اتاق ۲۰۱ - علی محمدی',
-                start: '2023-08-01',
-                end: '2023-08-05',
-                color: '#10B981', // Green for confirmed
-                url: '#'
-            },
-            {
-                title: 'اتاق ۱۰۵ - زهرا رضایی',
-                start: '2023-08-03',
-                end: '2023-08-07',
-                color: '#10B981',
-                url: '#'
-            },
-            {
-                title: 'اتاق ۳۰۲ - محسن کریمی',
-                start: '2023-08-10',
-                end: '2023-08-15',
-                color: '#F59E0B', // Yellow for pending
-                url: '#'
-            },
-            {
-                title: 'اتاق ۲۰۵ - فاطمه احمدی',
-                start: '2023-08-12',
-                end: '2023-08-14',
-                color: '#10B981',
-                url: '#'
-            },
-            {
-                title: 'اتاق ۱۰۱ - رضا حسینی',
-                start: '2023-08-18',
-                end: '2023-08-22',
-                color: '#EF4444', // Red for cancelled
-                url: '#'
-            },
-            {
-                title: 'اتاق ۴۰۱ - نسترن محمدپور',
-                start: '2023-08-20',
-                end: '2023-08-25',
-                color: '#10B981',
-                url: '#'
-            },
-            {
-                title: 'اتاق ۲۰۳ - امیرحسین اکبری',
-                start: '2023-08-25',
-                end: '2023-08-30',
-                color: '#F59E0B',
-                url: '#'
+document.addEventListener('DOMContentLoaded', function() {
+    const calendarEl = document.getElementById('calendar');
+    calendarEl.style.height = '800px';
+    
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+        locale: 'fa',
+        direction: 'rtl',
+        initialView: 'dayGridMonth',
+        headerToolbar: false,
+        height: 'parent',
+        events: {
+            url: '{% url "bookings:calendar_events" %}',
+            method: 'GET',
+            failure: function(error) {
+                console.error('Error loading events:', error);
+                alert('خطا در دریافت اطلاعات رزروها');
             }
-        ];
-        
-        const calendar = new FullCalendar.Calendar(calendarEl, {
-            locale: 'fa',
-            direction: 'rtl',
-            initialView: 'dayGridMonth',
-            headerToolbar: false,
-            events: dummyBookings,
-            eventClick: function(info) {
-                info.jsEvent.preventDefault();
-                // In a real app, this would redirect to booking details
-                alert('نمایش جزئیات رزرو: ' + info.event.title);
-            },
-            eventContent: function(arg) {
-                // Custom event display with icons
-                const statusIcon = arg.event.backgroundColor === '#10B981' ? '✓' : 
-                                  arg.event.backgroundColor === '#F59E0B' ? '⌛' : '✗';
-                
-                return {
-                    html: `
-                        <div class="fc-event-main-frame">
-                            <div class="fc-event-title-container">
-                                <span class="fc-event-title">${statusIcon} ${arg.event.title}</span>
+        },
+        eventClick: function(info) {
+            window.location.href = '{% url "bookings:detail" 0 %}'.replace('0', info.event.id);
+        },
+        eventContent: function(arg) {
+            const statusInfo = {
+                'reserved': { icon: '✓', class: 'bg-opacity-90' },
+                'checked_in': { icon: '🏨', class: 'bg-opacity-100' },
+                'checked_out': { icon: '✔️', class: 'bg-opacity-70' },
+                'cancelled': { icon: '✗', class: 'bg-opacity-50 line-through' }
+            };
+            
+            const status = arg.event.extendedProps?.status || 'reserved';
+            const statusData = statusInfo[status] || { icon: '?', class: '' };
+            
+            return {
+                html: `
+                    <div class="fc-event-main-frame ${statusData.class}" style="background-color:${arg.event.backgroundColor};color:${arg.event.textColor}">
+                        <div class="fc-event-title-container">
+                            <div class="fc-event-title text-sm p-1">
+                                <div class="font-bold">${arg.event.extendedProps.room_number}</div>
+                                <div>${arg.event.extendedProps.guest_name}</div>
+                                <div class="flex justify-between items-center mt-1">
+                                    <span>${statusData.icon} ${status}</span>
+                                </div>
                             </div>
                         </div>
-                    `
-                };
-            }
-        });
-        
-        calendar.render();
-        
-        // Update month name
-        function updateMonthName() {
-            const date = calendar.getDate();
-            const options = { month: 'long', year: 'numeric' };
-            document.getElementById('current-month').textContent = date.toLocaleDateString('fa-IR', options);
+                    </div>
+                `
+            };
         }
-        
-        updateMonthName();
-        
-        // Navigation buttons
-        document.getElementById('prev-month').addEventListener('click', function() {
+    });
+
+    calendar.render();
+    
+    function updateMonthName() {
+        const date = calendar.getDate();
+        const jalaliDate = new Intl.DateTimeFormat('fa-IR', {
+            month: 'long',
+            year: 'numeric'
+        }).format(date);
+        document.getElementById('current-month').textContent = jalaliDate;
+    }
+    
+    updateMonthName();
+    
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('#prev-month')) {
             calendar.prev();
             updateMonthName();
-        });
-        
-        document.getElementById('next-month').addEventListener('click', function() {
+        }
+        else if (e.target.closest('#next-month')) {
             calendar.next();
             updateMonthName();
-        });
-        
-        document.getElementById('today').addEventListener('click', function() {
+        }
+        else if (e.target.closest('#today')) {
             calendar.today();
             updateMonthName();
-        });
+        }
     });
+});
 </script>
 
 <style>
@@ -171,23 +140,30 @@
     .fc-event {
         cursor: pointer;
         margin-bottom: 2px;
+        border: none;
+        border-radius: 6px;
     }
-    .fc-event-title {
-        font-size: 0.8em;
-        white-space: normal;
+    .fc-event-main-frame {
         padding: 2px;
     }
     .fc-daygrid-event-dot {
-        display: none; /* Hide the default dot */
+        display: none;
     }
     .fc-daygrid-day-frame {
-        overflow: visible; /* Allow events to overflow slightly */
+        overflow: visible;
     }
     .fc-daygrid-day-events {
-        min-height: 2em; /* Ensure space for events */
+        min-height: 2em;
     }
     .fc-day-today {
         background-color: rgba(59, 130, 246, 0.1) !important;
     }
+    .fc-event-title {
+        white-space: normal;
+    }
+    .fc-event-title div {
+        margin: 2px 0;
+    }
 </style>
+
 {% endblock %}

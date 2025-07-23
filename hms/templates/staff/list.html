@@ -21,47 +21,21 @@
 <div class="space-y-6">
     <div class="flex justify-between items-center">
         <h1 class="text-2xl font-bold">لیست کارکنان</h1>
-        <a href="{% url 'accounts:dashboard' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center space-x-1 space-x-reverse">
+        <a href="{% url 'staff:create' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center space-x-1 space-x-reverse">
             <i class="ti ti-plus"></i>
             <span>کارمند جدید</span>
         </a>
     </div>
 
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
-        <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-            <div class="flex items-center space-x-4 space-x-reverse">
-                <div class="relative">
-                    <input type="text" placeholder="جستجوی کارمند..." class="pr-10 pl-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent">
-                    <i class="ti ti-search absolute right-3 top-2.5 text-gray-400"></i>
-                </div>
-                <select class="border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent px-3 py-2">
-                    <option>همه دپارتمان‌ها</option>
-                    <option>پذیرش</option>
-                    <option>خدمات مهمان</option>
-                    <option>نگهداری</option>
-                    <option>مدیریت</option>
-                </select>
-                <select class="border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent px-3 py-2">
-                    <option>همه سمت‌ها</option>
-                    <option>مدیر</option>
-                    <option>سرپرست</option>
-                    <option>کارمند</option>
-                </select>
-            </div>
-            <button class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
-                <i class="ti ti-download"></i>
-            </button>
-        </div>
-        
         <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 data-table">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                 <thead class="bg-gray-50 dark:bg-gray-800">
                     <tr>
+                        <th class="px-4 py-3 text-right">نام کاربری</th>
                         <th class="px-4 py-3 text-right">نام</th>
-                        <th class="px-4 py-3 text-right">سمت</th>
-                        <th class="px-4 py-3 text-right">دپارتمان</th>
-                        <th class="px-4 py-3 text-right">تلفن</th>
-                        <th class="px-4 py-3 text-right">تاریخ استخدام</th>
+                        <th class="px-4 py-3 text-right">ایمیل</th>
+                        <th class="px-4 py-3 text-right">نقش</th>
                         <th class="px-4 py-3 text-right">وضعیت</th>
                         <th class="px-4 py-3 text-right">عملیات</th>
                     </tr>
@@ -69,23 +43,23 @@
                 <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                     {% for staff in staff_members %}
                     <tr>
+                        <td class="px-4 py-3 font-medium">{{ staff.username }}</td>
                         <td class="px-4 py-3">
                             <div class="flex items-center space-x-3 space-x-reverse">
-                                <img src="{{ staff.profile_image|default:'https://randomuser.me/api/portraits/men/1.jpg' }}" alt="{{ staff.full_name }}" class="w-8 h-8 rounded-full">
-                                <div>
-                                    <p class="font-medium">{{ staff.full_name }}</p>
-                                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ staff.employee_id }}</p>
-                                </div>
+                                <img src="https://ui-avatars.com/api/?name={{ staff.first_name|urlencode }}+{{ staff.last_name|urlencode }}&background=random" 
+                                     alt="{{ staff.get_full_name }}" 
+                                     class="w-8 h-8 rounded-full">
+                                <span>{{ staff.get_full_name }}</span>
                             </div>
                         </td>
-                        <td class="px-4 py-3">{{ staff.position }}</td>
+                        <td class="px-4 py-3">{{ staff.email }}</td>
                         <td class="px-4 py-3">
-                            <span class="px-2 py-1 text-xs rounded-full {{ staff.department.color_class }}">
-                                {{ staff.department.name }}
-                            </span>
+                            {% if staff.is_superuser %}
+                                مدیر سیستم
+                            {% else %}
+                                کارمند
+                            {% endif %}
                         </td>
-                        <td class="px-4 py-3">{{ staff.phone }}</td>
-                        <td class="px-4 py-3">{{ staff.hire_date|date:"Y/m/d" }}</td>
                         <td class="px-4 py-3">
                             {% if staff.is_active %}
                             <span class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-full text-xs">فعال</span>
@@ -93,20 +67,34 @@
                             <span class="px-2 py-1 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 rounded-full text-xs">غیرفعال</span>
                             {% endif %}
                         </td>
-                        <td class="px-4 py-3">
-                            <div class="flex items-center space-x-2 space-x-reverse">
-                                <a href="{% url 'accounts:dashboard' %}" class="text-blue-600 hover:text-blue-800 dark:hover:text-blue-400" title="مشاهده">
-                                    <i class="ti ti-eye"></i>
-                                </a>
-                                <a href="{% url 'accounts:dashboard' %}" class="text-gray-600 hover:text-gray-800 dark:hover:text-gray-400" title="ویرایش">
-                                    <i class="ti ti-edit"></i>
-                                </a>
-                                {% if staff.is_active %}
-                                <a href="#" class="text-red-600 hover:text-red-800 dark:hover:text-red-400" title="غیرفعال کردن">
-                                    <i class="ti ti-user-off"></i>
-                                </a>
-                                {% endif %}
-                            </div>
+<td class="px-4 py-3">
+    <div class="flex items-center space-x-2 space-x-reverse">
+        <a href="{% url 'staff:detail' staff.pk %}" 
+           class="text-blue-600 hover:text-blue-800 dark:hover:text-blue-400" 
+           title="مشاهده">
+            <i class="ti ti-eye"></i>
+        </a>
+        <a href="{% url 'staff:edit' staff.pk %}" 
+           class="text-gray-600 hover:text-gray-800 dark:hover:text-gray-400" 
+           title="ویرایش">
+            <i class="ti ti-edit"></i>
+        </a>
+        <form method="POST" action="{% url 'staff:delete' staff.pk %}" class="inline">
+            {% csrf_token %}
+            <button type="submit" 
+                    class="text-red-600 hover:text-red-800 dark:hover:text-red-400"
+                    title="حذف"
+                    onclick="return confirm('آیا از حذف کارمند \"{{ staff.get_full_name }}\" مطمئن هستید؟ این عمل غیرقابل بازگشت است.')">
+                <i class="ti ti-trash"></i>
+            </button>
+        </form>
+    </div>
+</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-4 py-3 text-center text-gray-500 dark:text-gray-400">
+                            هیچ کارمندی یافت نشد
                         </td>
                     </tr>
                     {% endfor %}
@@ -115,4 +103,19 @@
         </div>
     </div>
 </div>
+
+<script>
+// Add confirmation for delete actions
+document.addEventListener('DOMContentLoaded', function() {
+    const deleteForms = document.querySelectorAll('form[action*="delete"]');
+    
+    deleteForms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            if (!confirm('آیا از حذف این کارمند مطمئن هستید؟')) {
+                e.preventDefault();
+            }
+        });
+    });
+});
+</script>
 {% endblock %}

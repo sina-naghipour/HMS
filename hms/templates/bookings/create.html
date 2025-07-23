@@ -1,5 +1,33 @@
 {% extends 'admin/base.html' %}
 
+{% block extra_head %}
+<!-- Load jQuery first -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Then load Persian Date and Datepicker from CDN -->
+<script src="https://cdn.jsdelivr.net/npm/persian-date@1.1.0/dist/persian-date.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/persian-datepicker@2.0.1/dist/js/persian-datepicker.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/persian-datepicker@2.0.1/dist/css/persian-datepicker.min.css">
+
+<style>
+.pdatepicker-navigator {
+    direction: rtl;
+}
+.pdatepicker-month-view {
+    direction: rtl;
+}
+.pdatepicker-disabled {
+    background-color: #f3f4f6;
+    color: #9ca3af;
+    cursor: not-allowed;
+    text-decoration: line-through;
+}
+.pdatepicker-disabled:hover {
+    background-color: #f3f4f6 !important;
+}
+</style>
+{% endblock %}
+
 {% block title %}رزرو جدید{% endblock %}
 
 {% block breadcrumb %}
@@ -37,13 +65,15 @@
             </div>
             
             <div>
-                <label for="check_in" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">تاریخ ورود</label>
-                <input type="date" id="check_in" name="check_in" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+                <label for="persian_check_in" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">تاریخ ورود</label>
+                <input type="text" id="persian_check_in" class="persian-date-input bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required readonly>
+                <input type="hidden" id="check_in" name="check_in">
             </div>
-            
+
             <div>
-                <label for="check_out" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">تاریخ خروج</label>
-                <input type="date" id="check_out" name="check_out" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+                <label for="persian_check_out" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">تاریخ خروج</label>
+                <input type="text" id="persian_check_out" class="persian-date-input bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required readonly>
+                <input type="hidden" id="check_out" name="check_out">
             </div>
             
             <div>
@@ -57,7 +87,7 @@
 
         <!-- Primary Guest Section -->
         <div class="mb-8 p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
-            <h3 class="text-lg font-semibold mb-4">مهمان اصلی</h3>
+            <h3 class="text-lg font-semibold mb-4">گیرنده</h3>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -147,16 +177,29 @@
 </template>
 
 <script>
+// Function to convert Django template data to JavaScript
+function getBookedDates() {
+    const bookedDates = {};
+    {% for room in available_rooms %}
+    bookedDates[{{ room.id }}] = [
+        {% for booking in room.bookings.all %}
+            ["{{ booking.check_in|date:'Y-m-d' }}", "{{ booking.check_out|date:'Y-m-d' }}"],
+        {% endfor %}
+    ];
+    {% endfor %}
+    return bookedDates;
+}
+
 document.addEventListener('DOMContentLoaded', function() {
+    // Guest management code
     const addGuestBtn = document.getElementById('add-guest-btn');
     const guestsContainer = document.getElementById('additional-guests-container');
     const guestTemplate = document.getElementById('guest-template');
     const roomSelect = document.getElementById('room');
     
-    // Add new guest form
     addGuestBtn.addEventListener('click', function() {
         const roomCapacity = roomSelect.selectedOptions[0]?.dataset.capacity || 1;
-        const currentGuests = document.querySelectorAll('.guest-form').length + 1; // +1 for primary guest
+        const currentGuests = document.querySelectorAll('.guest-form').length + 1;
         
         if (currentGuests >= roomCapacity) {
             alert(`ظرفیت اتاق ${roomCapacity} نفر است. نمی‌توانید مهمان بیشتری اضافه کنید.`);
@@ -167,21 +210,18 @@ document.addEventListener('DOMContentLoaded', function() {
         guestsContainer.appendChild(clone);
     });
     
-    // Remove guest form
     guestsContainer.addEventListener('click', function(e) {
         if (e.target.classList.contains('remove-guest') || e.target.closest('.remove-guest')) {
             e.target.closest('.guest-form').remove();
         }
     });
     
-    // Room capacity check
     roomSelect.addEventListener('change', function() {
         const capacity = this.selectedOptions[0]?.dataset.capacity || 1;
         const currentGuests = document.querySelectorAll('.guest-form').length + 1;
         
         if (currentGuests > capacity) {
             alert(`ظرفیت اتاق انتخاب شده ${capacity} نفر است. لطفاً تعدادی از مهمانان را حذف کنید.`);
-            // Optionally remove excess guests
             const excess = currentGuests - capacity;
             const guestForms = document.querySelectorAll('.guest-form');
             for (let i = 0; i < excess; i++) {
@@ -189,6 +229,137 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
+
+    // Datepicker initialization
+    const bookedDates = getBookedDates();
+    let currentRoomId = null;
+
+    function initDatepickers() {
+        if (typeof $.fn.pDatepicker === 'function') {
+            // Initialize check-in datepicker
+            $("#persian_check_in").pDatepicker({
+                format: 'YYYY/MM/DD',
+                autoClose: true,
+                observer: true,
+                initialValue: false,
+                navigator: {
+                    text: {
+                        btnNextText: ">",
+                        btnPrevText: "<"
+                    }
+                },
+                checkDate: function(date) {
+                    if (!currentRoomId) return true;
+                    const roomBookings = bookedDates[currentRoomId] || [];
+                    const checkDate = new Date(date);
+                    
+                    for (const [start, end] of roomBookings) {
+                        const startDate = new Date(start);
+                        const endDate = new Date(end);
+                        if (checkDate >= startDate && checkDate <= endDate) {
+                            return false;
+                        }
+                    }
+                    return true;
+                },
+                onSelect: function(unixDate) {
+                    const date = new Date(unixDate);
+                    const formattedDate = date.toISOString().split('T')[0];
+                    $("#check_in").val(formattedDate);
+                    
+                    // Update check-out datepicker
+                    $("#persian_check_out").pDatepicker({
+                        minDate: unixDate,
+                        checkDate: function(date) {
+                            if (!currentRoomId) return true;
+                            const roomBookings = bookedDates[currentRoomId] || [];
+                            const checkDate = new Date(date);
+                            
+                            if (checkDate <= new Date(unixDate)) return false;
+                            
+                            for (const [start, end] of roomBookings) {
+                                const startDate = new Date(start);
+                                const endDate = new Date(end);
+                                if (checkDate >= startDate && checkDate <= endDate) {
+                                    return false;
+                                }
+                            }
+                            return true;
+                        }
+                    });
+                }
+            });
+
+            // Initialize check-out datepicker
+            $("#persian_check_out").pDatepicker({
+                format: 'YYYY/MM/DD',
+                autoClose: true,
+                observer: true,
+                initialValue: false,
+                navigator: {
+                    text: {
+                        btnNextText: ">",
+                        btnPrevText: "<"
+                    }
+                },
+                checkDate: function(date) {
+                    if (!currentRoomId) return true;
+                    const roomBookings = bookedDates[currentRoomId] || [];
+                    const checkDate = new Date(date);
+                    
+                    // Check if a check-in date is selected
+                    const checkInDate = $("#persian_check_in").pDatepicker('getDate');
+                    if (checkInDate && checkDate <= checkInDate) {
+                        return false;
+                    }
+                    
+                    for (const [start, end] of roomBookings) {
+                        const startDate = new Date(start);
+                        const endDate = new Date(end);
+                        if (checkDate >= startDate && checkDate <= endDate) {
+                            return false;
+                        }
+                    }
+                    return true;
+                },
+                onSelect: function(unixDate) {
+                    const date = new Date(unixDate);
+                    const formattedDate = date.toISOString().split('T')[0];
+                    $("#check_out").val(formattedDate);
+                }
+            });
+        } else {
+            console.error('Persian Datepicker not loaded!');
+            // Fallback to native date inputs
+            $('.persian-date-input').each(function() {
+                const hiddenId = $(this).attr('id').replace('persian_', '');
+                $(this).replaceWith(
+                    '<input type="date" id="' + hiddenId + '" name="' + hiddenId + '" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>'
+                );
+            });
+        }
+    }
+
+    // Watch for room selection changes
+    $('#room').change(function() {
+        currentRoomId = $(this).val();
+        
+        // Reset date fields
+        $('#persian_check_in').val('');
+        $('#persian_check_out').val('');
+        $('#check_in').val('');
+        $('#check_out').val('');
+        
+        // Reinitialize datepickers with new room's booked dates
+        if (typeof $.fn.pDatepicker === 'function') {
+            $('#persian_check_in').pDatepicker('destroy');
+            $('#persian_check_out').pDatepicker('destroy');
+            initDatepickers();
+        }
+    });
+
+    // Initial initialization
+    initDatepickers();
 });
 </script>
 {% endblock %}

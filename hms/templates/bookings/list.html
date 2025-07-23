@@ -21,7 +21,8 @@
 <div class="space-y-6">
     <div class="flex justify-between items-center">
         <h1 class="text-2xl font-bold">لیست رزروها</h1>
-        <a href="{% url 'accounts:dashboard' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center space-x-1 space-x-reverse">
+        <a href="{% url 'bookings:create' %}"
+            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center space-x-1 space-x-reverse">
             <i class="ti ti-plus"></i>
             <span>رزرو جدید</span>
         </a>
@@ -31,7 +32,8 @@
         <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
             <div class="flex items-center space-x-4 space-x-reverse">
                 <div class="relative">
-                    <input type="text" placeholder="جستجوی رزرو..." class="pr-10 pl-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent">
+                    <input type="text" placeholder="جستجوی رزرو..."
+                        class="pr-10 pl-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent">
                     <i class="ti ti-search absolute right-3 top-2.5 text-gray-400"></i>
                 </div>
                 <select class="border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent px-3 py-2">
@@ -45,7 +47,7 @@
                 <i class="ti ti-download"></i>
             </button>
         </div>
-        
+
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 data-table">
                 <thead class="bg-gray-50 dark:bg-gray-800">
@@ -65,11 +67,14 @@
                         <td class="px-4 py-3 font-medium">#{{ booking.id }}</td>
                         <td class="px-4 py-3">
                             <div class="flex items-center space-x-2 space-x-reverse">
-                                <img src="{{ booking.guest.profile_image }}" alt="{{ booking.guest.name }}" class="w-8 h-8 rounded-full">
-                                <span>{{ booking.guest.name }}</span>
+                                {% if booking.primary_guest %}
+                                {{ booking.primary_guest.last_name }}
+                                {% else %}
+                                <span class="text-gray-400">هیچ مهمان اصلی</span>
+                                {% endif %}
                             </div>
                         </td>
-                        <td class="px-4 py-3">{{ booking.room.number }} ({{ booking.room.type }})</td>
+                        <td class="px-4 py-3">{{ booking.room.number }} ({{ booking.room.room_type }})</td>
                         <td class="px-4 py-3">
                             <div class="flex flex-col">
                                 <span>{{ booking.check_in|date:"Y/m/d" }}</span>
@@ -80,24 +85,37 @@
                         <td class="px-4 py-3">{{ booking.total_price|floatformat:"0" }} تومان</td>
                         <td class="px-4 py-3">
                             {% if booking.status == 'confirmed' %}
-                            <span class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-full text-xs">تایید شده</span>
+                            <span
+                                class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-full text-xs">تایید
+                                شده</span>
                             {% elif booking.status == 'pending' %}
-                            <span class="px-2 py-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 rounded-full text-xs">در انتظار</span>
+                            <span
+                                class="px-2 py-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 rounded-full text-xs">در
+                                انتظار</span>
                             {% else %}
-                            <span class="px-2 py-1 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 rounded-full text-xs">لغو شده</span>
+                            <span
+                                class="px-2 py-1 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 rounded-full text-xs">لغو
+                                شده</span>
                             {% endif %}
                         </td>
                         <td class="px-4 py-3">
                             <div class="flex items-center space-x-2 space-x-reverse">
-                                <a href="{% url 'accounts:dashboard' %}" class="text-blue-600 hover:text-blue-800 dark:hover:text-blue-400" title="مشاهده">
+                                <a href="{% url 'bookings:detail' booking.id %}"
+                                    class="text-blue-600 hover:text-blue-800 dark:hover:text-blue-400" title="مشاهده">
                                     <i class="ti ti-eye"></i>
                                 </a>
-                                <a href="#" class="text-gray-600 hover:text-gray-800 dark:hover:text-gray-400" title="چاپ">
+                                <a href="#" class="text-gray-600 hover:text-gray-800 dark:hover:text-gray-400"
+                                    title="چاپ">
                                     <i class="ti ti-printer"></i>
                                 </a>
-                                <a href="#" class="text-red-600 hover:text-red-800 dark:hover:text-red-400" title="لغو">
-                                    <i class="ti ti-trash"></i>
-                                </a>
+                                <form action="{% url 'bookings:delete' booking.id %}" method="post" class="inline">
+                                    {% csrf_token %}
+                                    <button type="submit"
+                                        class="text-red-600 hover:text-red-800 dark:hover:text-red-400" title="لغو رزرو"
+                                        onclick="return confirm('آیا از لغو این رزرو مطمئن هستید؟')">
+                                        <i class="ti ti-trash"></i>
+                                    </button>
+                                </form>
                             </div>
                         </td>
                     </tr>
