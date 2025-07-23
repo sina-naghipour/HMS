@@ -1,208 +1,290 @@
-{% extends "admin/base.html" %}
+{% extends 'admin/base.html' %}
 
-{% block title %}گزارشات | گزارش اشغال اتاق‌ها{% endblock %}
+{% block title %}گزارش اشغال اتاق‌ها{% endblock %}
 
 {% block breadcrumb %}
-<li class="breadcrumb-item"><a href="{% url 'accounts:dashboard' %}">داشبورد</a></li>
-<li class="breadcrumb-item"><a href="{% url 'reports:index' %}">گزارشات</a></li>
-<li class="breadcrumb-item active">گزارش اشغال</li>
+<li aria-current="page">
+    <div class="flex items-center">
+        <i class="ti ti-chevron-left text-gray-400 mx-1"></i>
+        <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">گزارشات</span>
+    </div>
+</li>
+<li aria-current="page">
+    <div class="flex items-center">
+        <i class="ti ti-chevron-left text-gray-400 mx-1"></i>
+        <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">گزارش اشغال</span>
+    </div>
+</li>
 {% endblock %}
 
 {% block content %}
-<div class="card shadow-sm">
-    <div class="card-header" style="background-color: #27374D; color: white;">
-        <h4 class="mb-0">گزارش اشغال اتاق‌ها</h4>
-    </div>
+<div class="space-y-6">
+    <h1 class="text-2xl font-bold">گزارش اشغال اتاق‌ها</h1>
 
-    <div class="card-body">
-        <!-- Filters -->
-        <div class="row mb-4">
-            <div class="col-md-12">
-                <div class="card filter-card">
-                    <div class="card-body">
-                        <form>
-                            <div class="row g-3">
-                                <div class="col-md-3">
-                                    <label class="form-label">از تاریخ</label>
-                                    <input type="text" class="form-control datepicker" placeholder="1402/01/01">
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label">تا تاریخ</label>
-                                    <input type="text" class="form-control datepicker" placeholder="1402/06/30">
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label">نوع اتاق</label>
-                                    <select class="form-select">
-                                        <option value="">همه</option>
-                                        <option value="suite">سوئیت</option>
-                                        <option value="double">دبل</option>
-                                        <option value="single">سینگل</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-3 d-flex align-items-end">
-                                    <button type="submit" class="btn btn-primary w-100">
-                                        <i class="fas fa-filter me-2"></i> اعمال فیلتر
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0 space-x-0 md:space-x-4 space-x-reverse">
+            <div class="flex items-center space-x-3 space-x-reverse">
+                <div class="relative">
+                    <input type="text" id="report-range" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="انتخاب بازه زمانی">
+                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                        <i class="ti ti-calendar text-gray-400"></i>
                     </div>
                 </div>
+                <select id="room-type-filter" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                    <option value="">همه نوع اتاق‌ها</option>
+                    <option value="suite">سوئیت</option>
+                    <option value="double">دبل</option>
+                    <option value="single">سینگل</option>
+                </select>
             </div>
-        </div>
-
-        <!-- Summary Cards -->
-        <div class="row mb-4">
-            <div class="col-md-4">
-                <div class="card text-white mb-3" style="background-color: #4361ee;">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">میانگین اشغال</h5>
-                        <h2 class="card-text">78%</h2>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card text-white mb-3" style="background-color: #4bb543;">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">بیشترین اشغال</h5>
-                        <h2 class="card-text">سوئیت ۲۰۱</h2>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card text-white mb-3" style="background-color: #ffcc00;">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">کمترین اشغال</h5>
-                        <h2 class="card-text">سینگل ۱۰۳</h2>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Chart -->
-        <div class="card mb-4">
-            <div class="card-header bg-light">
-                <h5 class="mb-0">نمودار اشغال ماهانه</h5>
-            </div>
-            <div class="card-body">
-                <div class="chart-container" style="height: 300px;">
-                    <canvas id="occupancyChart"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <!-- Detailed Report -->
-        <div class="card">
-            <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">گزارش تفصیلی</h5>
-                <button class="btn btn-sm btn-success">
-                    <i class="fas fa-file-excel me-2"></i> خروجی Excel
+            <div class="flex space-x-2 space-x-reverse">
+                <button id="generate-report" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
+                    تولید گزارش
+                </button>
+                <button id="print-report" class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 px-4 py-2 rounded-lg flex items-center space-x-1 space-x-reverse">
+                    <i class="ti ti-printer"></i>
+                    <span>چاپ</span>
+                </button>
+                <button id="export-report" class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 px-4 py-2 rounded-lg flex items-center space-x-1 space-x-reverse">
+                    <i class="ti ti-download"></i>
+                    <span>خروجی Excel</span>
                 </button>
             </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>نوع اتاق</th>
-                                <th>تعداد اتاق</th>
-                                <th>روزهای اشغال</th>
-                                <th>درصد اشغال</th>
-                                <th>میانگین قیمت</th>
-                                <th>درآمد</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>سوئیت</td>
-                                <td>5</td>
-                                <td>890</td>
-                                <td>85%</td>
-                                <td>2,500,000 تومان</td>
-                                <td>2,225,000,000 تومان</td>
-                            </tr>
-                            <tr>
-                                <td>دبل</td>
-                                <td>10</td>
-                                <td>1,450</td>
-                                <td>79%</td>
-                                <td>1,200,000 تومان</td>
-                                <td>1,740,000,000 تومان</td>
-                            </tr>
-                            <tr>
-                                <td>سینگل</td>
-                                <td>8</td>
-                                <td>980</td>
-                                <td>67%</td>
-                                <td>800,000 تومان</td>
-                                <td>784,000,000 تومان</td>
-                            </tr>
-                        </tbody>
-                        <tfoot class="table-dark">
-                            <tr>
-                                <th>جمع کل</th>
-                                <th>23</th>
-                                <th>3,320</th>
-                                <th>78%</th>
-                                <th>1,500,000 تومان</th>
-                                <th>4,749,000,000 تومان</th>
-                            </tr>
-                        </tfoot>
-                    </table>
+        </div>
+
+        <div class="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="bg-blue-50 dark:bg-blue-900/30 border border-blue-100 dark:border-blue-900 rounded-lg p-4">
+                <h3 class="text-lg font-semibold text-blue-800 dark:text-blue-200">میانگین اشغال</h3>
+                <p class="text-3xl font-bold mt-2 text-blue-600 dark:text-blue-300">۷۸٫۵%</p>
+                <div class="flex items-center mt-2 text-sm text-blue-600 dark:text-blue-300">
+                    <i class="ti ti-trending-up mr-1"></i>
+                    <span>۲٫۵% افزایش نسبت به ماه قبل</span>
                 </div>
+            </div>
+            <div class="bg-green-50 dark:bg-green-900/30 border border-green-100 dark:border-green-900 rounded-lg p-4">
+                <h3 class="text-lg font-semibold text-green-800 dark:text-green-200">اتاق‌های اشغال شده</h3>
+                <p class="text-3xl font-bold mt-2 text-green-600 dark:text-green-300">۱۲۴</p>
+                <div class="flex items-center mt-2 text-sm text-green-600 dark:text-green-300">
+                    <i class="ti ti-trending-up mr-1"></i>
+                    <span>۸ اتاق بیشتر از ماه قبل</span>
+                </div>
+            </div>
+            <div class="bg-orange-50 dark:bg-orange-900/30 border border-orange-100 dark:border-orange-900 rounded-lg p-4">
+                <h3 class="text-lg font-semibold text-orange-800 dark:text-orange-200">میانگین طول اقامت</h3>
+                <p class="text-3xl font-bold mt-2 text-orange-600 dark:text-orange-300">۳٫۲ شب</p>
+                <div class="flex items-center mt-2 text-sm text-orange-600 dark:text-orange-300">
+                    <i class="ti ti-trending-down mr-1"></i>
+                    <span>۰٫۴ شب کاهش نسبت به ماه قبل</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-8">
+            <h3 class="text-lg font-semibold mb-4">نمودار اشغال ماهانه</h3>
+            <canvas id="occupancyChart" height="300"></canvas>
+        </div>
+
+        <div class="mt-8">
+            <h3 class="text-lg font-semibold mb-4">جزئیات اشغال بر اساس نوع اتاق</h3>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead class="bg-gray-50 dark:bg-gray-800">
+                        <tr>
+                            <th class="px-4 py-3 text-right">نوع اتاق</th>
+                            <th class="px-4 py-3 text-right">تعداد اتاق</th>
+                            <th class="px-4 py-3 text-right">اشغال شده</th>
+                            <th class="px-4 py-3 text-right">درصد اشغال</th>
+                            <th class="px-4 py-3 text-right">میانگین قیمت</th>
+                            <th class="px-4 py-3 text-right">درآمد</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                        <tr>
+                            <td class="px-4 py-3 font-medium">سوئیت</td>
+                            <td class="px-4 py-3">۲۵</td>
+                            <td class="px-4 py-3">۲۲</td>
+                            <td class="px-4 py-3">
+                                <div class="flex items-center space-x-2 space-x-reverse">
+                                    <span>۸۸%</span>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                                        <div class="bg-blue-600 h-2.5 rounded-full" style="width: 88%"></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3">۱,۲۵۰,۰۰۰ تومان</td>
+                            <td class="px-4 py-3 font-medium">۲۷,۵۰۰,۰۰۰ تومان</td>
+                        </tr>
+                        <tr>
+                            <td class="px-4 py-3 font-medium">دبل</td>
+                            <td class="px-4 py-3">۶۰</td>
+                            <td class="px-4 py-3">۴۸</td>
+                            <td class="px-4 py-3">
+                                <div class="flex items-center space-x-2 space-x-reverse">
+                                    <span>۸۰%</span>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                                        <div class="bg-green-600 h-2.5 rounded-full" style="width: 80%"></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3">۸۵۰,۰۰۰ تومان</td>
+                            <td class="px-4 py-3 font-medium">۴۰,۸۰۰,۰۰۰ تومان</td>
+                        </tr>
+                        <tr>
+                            <td class="px-4 py-3 font-medium">سینگل</td>
+                            <td class="px-4 py-3">۴۰</td>
+                            <td class="px-4 py-3">۲۸</td>
+                            <td class="px-4 py-3">
+                                <div class="flex items-center space-x-2 space-x-reverse">
+                                    <span>۷۰%</span>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                                        <div class="bg-yellow-600 h-2.5 rounded-full" style="width: 70%"></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3">۶۵۰,۰۰۰ تومان</td>
+                            <td class="px-4 py-3 font-medium">۱۸,۲۰۰,۰۰۰ تومان</td>
+                        </tr>
+                        <tr class="bg-gray-50 dark:bg-gray-700/50 font-bold">
+                            <td class="px-4 py-3">جمع کل</td>
+                            <td class="px-4 py-3">۱۲۵</td>
+                            <td class="px-4 py-3">۹۸</td>
+                            <td class="px-4 py-3">۷۸٫۴%</td>
+                            <td class="px-4 py-3">۸۸۳,۶۷۳ تومان</td>
+                            <td class="px-4 py-3">۸۶,۵۰۰,۰۰۰ تومان</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 </div>
-{% endblock %}
 
-{% block extra_js %}
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Date Range Picker -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css">
+<script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment/min/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+
 <script>
-    // Sample Chart.js implementation
-    document.addEventListener('DOMContentLoaded', function() {
-        const ctx = document.getElementById('occupancyChart').getContext('2d');
-        const chart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور'],
-                datasets: [{
-                    label: 'درصد اشغال',
-                    data: [65, 72, 80, 85, 82, 78],
-                    backgroundColor: '#4361ee',
-                    borderColor: '#4361ee',
-                    borderWidth: 1
-                }]
+    // Initialize date range picker
+    $(function() {
+        $('#report-range').daterangepicker({
+            locale: {
+                format: 'YYYY/MM/DD',
+                applyLabel: 'تایید',
+                cancelLabel: 'انصراف',
+                fromLabel: 'از',
+                toLabel: 'تا',
+                customRangeLabel: 'سفارشی',
+                daysOfWeek: ['ش', 'ی', 'د', 'س', 'چ', 'پ', 'ج'],
+                monthNames: ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'],
+                firstDay: 6
             },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 100,
-                        title: {
-                            display: true,
-                            text: 'درصد اشغال'
+            opens: 'right',
+            autoUpdateInput: false
+        });
+
+        $('#report-range').on('apply.daterangepicker', function(ev, picker) {
+            $(this).val(picker.startDate.format('YYYY/MM/DD') + ' - ' + picker.endDate.format('YYYY/MM/DD'));
+        });
+
+        $('#report-range').on('cancel.daterangepicker', function(ev, picker) {
+            $(this).val('');
+        });
+    });
+
+    // Initialize occupancy chart
+    const occupancyCtx = document.getElementById('occupancyChart').getContext('2d');
+    const occupancyChart = new Chart(occupancyCtx, {
+        type: 'line',
+        data: {
+            labels: ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر'],
+            datasets: [
+                {
+                    label: 'اشغال (%)',
+                    data: [65, 72, 80, 76, 85, 88, 82],
+                    borderColor: 'rgb(59, 130, 246)',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    tension: 0.3,
+                    fill: true
+                },
+                {
+                    label: 'میانگین صنعت',
+                    data: [60, 65, 70, 68, 72, 75, 70],
+                    borderColor: 'rgb(156, 163, 175)',
+                    backgroundColor: 'rgba(156, 163, 175, 0.05)',
+                    borderDash: [5, 5],
+                    tension: 0.3,
+                    fill: true
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                    rtl: true
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.dataset.label + ': ' + context.raw + '%';
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: {
+                        callback: function(value) {
+                            return value + '%';
                         }
                     }
                 }
             }
-        });
+        }
+    });
+
+    // Generate report button
+    document.getElementById('generate-report').addEventListener('click', function() {
+        // In a real app, this would fetch data based on filters
+        alert('گزارش برای بازه انتخابی تولید شد');
+    });
+
+    // Print report button
+    document.getElementById('print-report').addEventListener('click', function() {
+        window.print();
+    });
+
+    // Export report button
+    document.getElementById('export-report').addEventListener('click', function() {
+        alert('خروجی Excel در حال دانلود است...');
     });
 </script>
 
 <style>
-    .filter-card {
-        background-color: #f8f9fa;
-        border: 1px solid #dee2e6;
-        border-radius: 8px;
-    }
-    
-    .chart-container {
-        position: relative;
-    }
-    
-    .table tfoot th {
-        font-weight: bold;
+    @media print {
+        body * {
+            visibility: hidden;
+        }
+        .bg-white, .bg-white * {
+            visibility: visible;
+        }
+        .bg-white {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            box-shadow: none;
+        }
+        .no-print {
+            display: none !important;
+        }
     }
 </style>
 {% endblock %}

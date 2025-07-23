@@ -1,80 +1,140 @@
-{% extends "admin/base.html" %}
+{% extends 'admin/base.html' %}
 
-{% block title %}جزئیات اتاق #{{ room.number }}{% endblock %}
-{% block page_title %}جزئیات اتاق{% endblock %}
+{% block title %}جزئیات اتاق {{ room.number }}{% endblock %}
 
 {% block breadcrumb %}
-{{ block.super }}
-<li class="breadcrumb-item"><a href="{% url 'accounts:dashboard' %}">اتاق‌ها</a></li>
-<li class="breadcrumb-item active">جزئیات #{{ room.number }}</li>
+<li aria-current="page">
+    <div class="flex items-center">
+        <i class="ti ti-chevron-left text-gray-400 mx-1"></i>
+        <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">مدیریت اتاق‌ها</span>
+    </div>
+</li>
+<li aria-current="page">
+    <div class="flex items-center">
+        <i class="ti ti-chevron-left text-gray-400 mx-1"></i>
+        <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">جزئیات اتاق</span>
+    </div>
+</li>
 {% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-header">
-                <h5>اطلاعات اتاق</h5>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <p><strong>شماره اتاق:</strong> {{ room.number }}</p>
-                        <p><strong>وضعیت:</strong> 
-                            {% if room.is_available %}
-                            <span class="badge bg-success">آزاد</span>
+<div class="space-y-6">
+    <div class="flex justify-between items-center">
+        <h1 class="text-2xl font-bold">جزئیات اتاق {{ room.number }}</h1>
+        <div class="flex items-center space-x-2 space-x-reverse">
+            <a href="{% url 'accounts:dashboard' %}" class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 px-4 py-2 rounded-lg">
+                بازگشت
+            </a>
+            <a href="{% url 'rooms:edit' room.number %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
+                ویرایش اتاق
+            </a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 space-y-6">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                <h2 class="text-xl font-semibold mb-4">اطلاعات اصلی</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-gray-500 dark:text-gray-400">شماره اتاق</p>
+                        <p class="font-medium">{{ room.number }}</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-500 dark:text-gray-400">نوع اتاق</p>
+                        <p class="font-medium">
+                            <span>{{ room.room_type.name }}</span>
+                        </p>
+                    </div>
+                    <div>
+                        <p class="text-gray-500 dark:text-gray-400">ظرفیت</p>
+                        <p class="font-medium">{{ room.capacity }} نفر</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-500 dark:text-gray-400">قیمت شبانه</p>
+                        <p class="font-medium">{{ room.price|floatformat:"0" }} تومان</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-500 dark:text-gray-400">وضعیت</p>
+                        <p class="font-medium">
+                            {% if room.status == 'available' %}
+                            <span class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-full text-xs">خالی</span>
+                            {% elif room.status == 'occupied' %}
+                            <span class="px-2 py-1 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 rounded-full text-xs">رزرو شده</span>
+                            {% elif room.status == 'reserved' %}
+                            <span class="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-xs">رزرو شده</span>
                             {% else %}
-                            <span class="badge bg-danger">اشغال</span>
+                            <span class="px-2 py-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 rounded-full text-xs">در تعمیرات</span>
                             {% endif %}
                         </p>
-                        <p><strong>تعداد تخت:</strong> {{ room.beds }}</p>
                     </div>
-                    <div class="col-md-6">
-                        <p><strong>نوع اتاق:</strong> {{ room.type.name }}</p>
-                        <p><strong>ظرفیت:</strong> {{ room.type.capacity }} نفر</p>
-                        <p><strong>قیمت شبانه:</strong> {{ room.type.price }} تومان</p>
+                    <div>
+                        <p class="text-gray-500 dark:text-gray-400">طبقه</p>
+                        <p class="font-medium">{{ room.floor }}</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-500 dark:text-gray-400">توضیحات</p>
+                        <p class="font-medium">{{ room.description|default:"-" }}</p>
                     </div>
                 </div>
-                <hr>
-                <h5>امکانات اتاق</h5>
-                <div class="row">
-                    {% for amenity in room.type.amenities.all %}
-                    <div class="col-md-3">
-                        <div class="d-flex align-items-center mb-2">
-                            <i class="fas fa-check-circle text-success me-2"></i>
-                            <span>{{ amenity.name }}</span>
-                        </div>
-                    </div>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                <h2 class="text-xl font-semibold mb-4">امکانات اتاق</h2>
+                <div class="flex flex-wrap gap-2">
+                    {% for amenity in room.amenities.all %}
+                    <span class="bg-gray-100 dark:bg-gray-700 px-3 py-1.5 rounded-full flex items-center space-x-1 space-x-reverse">
+                        <i class="{{ amenity.icon }}"></i>
+                        <span>{{ amenity.name }}</span>
+                    </span>
+                    {% empty %}
+                    <span class="text-gray-500 dark:text-gray-400">امکاناتی تعریف نشده است</span>
                     {% endfor %}
                 </div>
             </div>
         </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-header">
-                <h5>رزروهای اخیر</h5>
-            </div>
-            <div class="card-body">
-                {% if room.bookings.exists %}
-                <div class="list-group">
-                    {% for booking in room.bookings.all|slice:":5" %}
-                    <a href="{% url 'accounts:dashboard' %}" class="list-group-item list-group-item-action">
-                        <div class="d-flex justify-content-between">
-                            <h6 class="mb-1">{{ booking.guest.name }}</h6>
-                            <small>{{ booking.check_in|date:"Y/m/d" }}</small>
-                        </div>
-                        <small class="text-muted">وضعیت: 
-                            <span class="badge bg-{{ booking.status_color }}">
-                                {{ booking.get_status_display }}
-                            </span>
-                        </small>
-                    </a>
-                    {% endfor %}
+
+        <div class="space-y-6">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                <h2 class="text-xl font-semibold mb-4">وضعیت اتاق</h2>
+                <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="font-medium">وضعیت فعلی:</span>
+                        <span class="px-2 py-1 rounded-full text-xs
+                            {% if room.status == 'available' %}
+                                bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200
+                            {% elif room.status == 'occupied' %}
+                                bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200
+                            {% elif room.status == 'reserved' %}
+                                bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200
+                            {% else %}
+                                bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200
+                            {% endif %}">
+                            {{ room.get_status_display }}
+                        </span>
+                    </div>
+                    <p class="text-sm text-gray-600 dark:text-gray-300 mt-4">
+                        آخرین بروزرسانی: {{ room.updated_at|date:"Y/m/d H:i" }}
+                    </p>
                 </div>
-                {% else %}
-                <p class="text-muted">هیچ رزروی برای این اتاق ثبت نشده است</p>
-                {% endif %}
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                <h2 class="text-xl font-semibold mb-4">اطلاعات نوع اتاق</h2>
+                <div class="space-y-3">
+                    <div>
+                        <p class="text-gray-500 dark:text-gray-400">نوع:</p>
+                        <p class="font-medium">{{ room.room_type.name }}</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-500 dark:text-gray-400">قیمت پایه:</p>
+                        <p class="font-medium">{{ room.room_type.base_price|floatformat:"0" }} تومان</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-500 dark:text-gray-400">توضیحات:</p>
+                        <p class="font-medium">{{ room.room_type.description|default:"-" }}</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

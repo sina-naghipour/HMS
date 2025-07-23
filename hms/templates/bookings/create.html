@@ -1,75 +1,194 @@
-{% extends "admin/base.html" %}
+{% extends 'admin/base.html' %}
 
 {% block title %}رزرو جدید{% endblock %}
-{% block page_title %}ثبت رزرو جدید{% endblock %}
 
 {% block breadcrumb %}
-{{ block.super }}
-<li class="breadcrumb-item"><a href="{% url 'accounts:dashboard' %}">رزروها</a></li>
-<li class="breadcrumb-item active">رزرو جدید</li>
+<li aria-current="page">
+    <div class="flex items-center">
+        <i class="ti ti-chevron-left text-gray-400 mx-1"></i>
+        <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">مدیریت رزروها</span>
+    </div>
+</li>
+<li aria-current="page">
+    <div class="flex items-center">
+        <i class="ti ti-chevron-left text-gray-400 mx-1"></i>
+        <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">رزرو جدید</span>
+    </div>
+</li>
 {% endblock %}
 
 {% block content %}
-<div class="card">
-    <div class="card-header">
-        <h5>فرم ثبت رزرو</h5>
-    </div>
-    <div class="card-body">
-        <form method="post">
-            {% csrf_token %}
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label for="guest" class="form-label">مهمان</label>
-                        <select class="form-select" id="guest" name="guest" required>
-                            <option value="">انتخاب مهمان</option>
-                            {% for guest in guests %}
-                            <option value="{{ guest.id }}">{{ guest.name }} - {{ guest.phone }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="check_in" class="form-label">تاریخ ورود</label>
-                        <input type="date" class="form-control" id="check_in" name="check_in" required>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label for="room" class="form-label">اتاق</label>
-                        <select class="form-select" id="room" name="room" required>
-                            <option value="">انتخاب اتاق</option>
-                            {% for room in available_rooms %}
-                            <option value="{{ room.id }}">{{ room.number }} ({{ room.type.name }})</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="check_out" class="form-label">تاریخ خروج</label>
-                        <input type="date" class="form-control" id="check_out" name="check_out" required>
-                    </div>
-                </div>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">خدمات اضافی</label>
-                <div class="row">
-                    {% for service in services %}
-                    <div class="col-md-4">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="services" value="{{ service.id }}" id="service{{ service.id }}">
-                            <label class="form-check-label" for="service{{ service.id }}">
-                                {{ service.name }} ({{ service.price }} تومان)
-                            </label>
-                        </div>
-                    </div>
+<div class="space-y-6">
+    <h1 class="text-2xl font-bold">رزرو جدید</h1>
+
+    <form method="post" class="bg-white dark:bg-gray-800 rounded-lg shadow p-6" id="booking-form">
+        {% csrf_token %}
+        
+        <!-- Room Selection -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+                <label for="room" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">اتاق</label>
+                <select id="room" name="room" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+                    <option value="">انتخاب اتاق...</option>
+                    {% for room in available_rooms %}
+                    <option value="{{ room.id }}" data-capacity="{{ room.capacity }}">{{ room.number }} ({{ room.type }}) - ظرفیت: {{ room.capacity }} نفر</option>
                     {% endfor %}
+                </select>
+            </div>
+            
+            <div>
+                <label for="check_in" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">تاریخ ورود</label>
+                <input type="date" id="check_in" name="check_in" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+            </div>
+            
+            <div>
+                <label for="check_out" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">تاریخ خروج</label>
+                <input type="date" id="check_out" name="check_out" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+            </div>
+            
+            <div>
+                <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">وضعیت</label>
+                <select name="status" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                    <option value="reserved">رزرو شده</option>
+                    <option value="checked_in">تسویه شده</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Primary Guest Section -->
+        <div class="mb-8 p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+            <h3 class="text-lg font-semibold mb-4">مهمان اصلی</h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="guest_national_id" class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">کد ملی</label>
+                    <input type="text" id="guest_national_id" name="guest_national_id" pattern="[0-9]{10}" title="کد ملی باید ۱۰ رقم باشد" class="w-full px-3 py-2 border rounded-md" required>
+                </div>
+                
+                <div>
+                    <label for="guest_first_name" class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">نام</label>
+                    <input type="text" id="guest_first_name" name="guest_first_name" class="w-full px-3 py-2 border rounded-md" required>
+                </div>
+                
+                <div>
+                    <label for="guest_last_name" class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">نام خانوادگی</label>
+                    <input type="text" id="guest_last_name" name="guest_last_name" class="w-full px-3 py-2 border rounded-md" required>
+                </div>
+                
+                <div>
+                    <label for="guest_phone" class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">تلفن</label>
+                    <input type="tel" id="guest_phone" name="guest_phone" pattern="[0-9]{11}" title="شماره تلفن باید ۱۱ رقم باشد" class="w-full px-3 py-2 border rounded-md" required>
                 </div>
             </div>
-            <div class="mb-3">
-                <label for="notes" class="form-label">توضیحات</label>
-                <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
+        </div>
+
+        <!-- Additional Guests Section -->
+        <div class="mb-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold">مهمانان همراه</h3>
+                <button type="button" id="add-guest-btn" class="flex items-center text-blue-600 dark:text-blue-400">
+                    <i class="ti ti-plus ml-1"></i>
+                    اضافه کردن مهمان
+                </button>
             </div>
-            <button type="submit" class="btn btn-primary">ثبت رزرو</button>
-        </form>
-    </div>
+            
+            <div id="additional-guests-container">
+                <!-- Additional guests will be added here -->
+            </div>
+        </div>
+
+        <!-- Other Booking Details -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div class="md:col-span-2">
+                <label for="notes" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">توضیحات</label>
+                <textarea id="notes" name="notes" rows="3" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"></textarea>
+            </div>
+        </div>
+        
+        <div class="mt-6 flex justify-end space-x-3 space-x-reverse">
+            <a href="{% url 'bookings:list' %}" class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 px-4 py-2 rounded-lg">
+                انصراف
+            </a>
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
+                ذخیره رزرو
+            </button>
+        </div>
+    </form>
 </div>
+
+<!-- Guest Template (hidden) -->
+<template id="guest-template">
+    <div class="guest-form mb-4 p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+        <div class="flex justify-between items-center mb-3">
+            <h4 class="font-medium">مهمان همراه</h4>
+            <button type="button" class="remove-guest text-red-500">
+                <i class="ti ti-trash"></i>
+            </button>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">کد ملی</label>
+                <input type="text" name="additional_guests_national_id[]" pattern="[0-9]{10}" title="کد ملی باید ۱۰ رقم باشد" class="w-full px-3 py-2 border rounded-md" required>
+            </div>
+            <div>
+                <label class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">نام</label>
+                <input type="text" name="additional_guests_first_name[]" class="w-full px-3 py-2 border rounded-md" required>
+            </div>
+            <div>
+                <label class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">نام خانوادگی</label>
+                <input type="text" name="additional_guests_last_name[]" class="w-full px-3 py-2 border rounded-md" required>
+            </div>
+            <div>
+                <label class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">تلفن</label>
+                <input type="tel" name="additional_guests_phone[]" pattern="[0-9]{11}" title="شماره تلفن باید ۱۱ رقم باشد" class="w-full px-3 py-2 border rounded-md">
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const addGuestBtn = document.getElementById('add-guest-btn');
+    const guestsContainer = document.getElementById('additional-guests-container');
+    const guestTemplate = document.getElementById('guest-template');
+    const roomSelect = document.getElementById('room');
+    
+    // Add new guest form
+    addGuestBtn.addEventListener('click', function() {
+        const roomCapacity = roomSelect.selectedOptions[0]?.dataset.capacity || 1;
+        const currentGuests = document.querySelectorAll('.guest-form').length + 1; // +1 for primary guest
+        
+        if (currentGuests >= roomCapacity) {
+            alert(`ظرفیت اتاق ${roomCapacity} نفر است. نمی‌توانید مهمان بیشتری اضافه کنید.`);
+            return;
+        }
+        
+        const clone = guestTemplate.content.cloneNode(true);
+        guestsContainer.appendChild(clone);
+    });
+    
+    // Remove guest form
+    guestsContainer.addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove-guest') || e.target.closest('.remove-guest')) {
+            e.target.closest('.guest-form').remove();
+        }
+    });
+    
+    // Room capacity check
+    roomSelect.addEventListener('change', function() {
+        const capacity = this.selectedOptions[0]?.dataset.capacity || 1;
+        const currentGuests = document.querySelectorAll('.guest-form').length + 1;
+        
+        if (currentGuests > capacity) {
+            alert(`ظرفیت اتاق انتخاب شده ${capacity} نفر است. لطفاً تعدادی از مهمانان را حذف کنید.`);
+            // Optionally remove excess guests
+            const excess = currentGuests - capacity;
+            const guestForms = document.querySelectorAll('.guest-form');
+            for (let i = 0; i < excess; i++) {
+                guestForms[guestForms.length - 1 - i].remove();
+            }
+        }
+    });
+});
+</script>
 {% endblock %}

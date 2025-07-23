@@ -1,55 +1,116 @@
-{% extends "admin/base.html" %}
+{% extends 'admin/base.html' %}
 
-{% block title %}اتاق جدید{% endblock %}
-{% block page_title %}ثبت اتاق جدید{% endblock %}
+{% block title %}افزودن اتاق جدید{% endblock %}
 
 {% block breadcrumb %}
-{{ block.super }}
-<li class="breadcrumb-item"><a href="{% url 'accounts:dashboard' %}">اتاق‌ها</a></li>
-<li class="breadcrumb-item active">اتاق جدید</li>
+<li aria-current="page">
+    <div class="flex items-center">
+        <i class="ti ti-chevron-left text-gray-400 mx-1"></i>
+        <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">مدیریت اتاق‌ها</span>
+    </div>
+</li>
+<li aria-current="page">
+    <div class="flex items-center">
+        <i class="ti ti-chevron-left text-gray-400 mx-1"></i>
+        <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">افزودن اتاق جدید</span>
+    </div>
+</li>
 {% endblock %}
 
 {% block content %}
-<div class="card">
-    <div class="card-header">
-        <h5>فرم ثبت اتاق</h5>
-    </div>
-    <div class="card-body">
-        <form method="post">
-            {% csrf_token %}
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label for="number" class="form-label">شماره اتاق</label>
-                        <input type="text" class="form-control" id="number" name="number" required>
+<div class="space-y-6">
+    <h1 class="text-2xl font-bold">افزودن اتاق جدید</h1>
+
+    <form method="post" class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        {% csrf_token %}
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label for="number" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">شماره اتاق</label>
+                <input type="text" id="number" name="number" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+            </div>
+            
+            <div>
+                <label for="room_type" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">نوع اتاق</label>
+                <select id="room_type" name="room_type" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+                    <option value="">انتخاب نوع اتاق...</option>
+                    {% for type in room_types %}
+                    <option value="{{ type.id }}" data-price="{{ type.base_price }}">{{ type.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div>
+                <label for="floor" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">طبقه</label>
+                <input type="number" id="floor" name="floor" min="1" max="20" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+            </div>
+            
+            <div>
+                <label for="capacity" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">ظرفیت</label>
+                <input type="number" id="capacity" name="capacity" min="1" max="6" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+            </div>
+            
+            <div>
+                <label for="price" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">قیمت شبانه (تومان)</label>
+                <input type="number" id="price" name="price" min="0" step="100000" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+            </div>
+            
+            <div>
+                <label for="status" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">وضعیت</label>
+                <select id="status" name="status" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+                    <option value="available" selected>خالی</option>
+                    <option value="maintenance">در تعمیرات</option>
+                </select>
+            </div>
+            
+            <div class="md:col-span-2">
+                <label for="amenities" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">امکانات</label>
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                    {% for amenity in amenities %}
+                    <div class="flex items-center space-x-2 space-x-reverse">
+                        <input type="checkbox" id="amenity-{{ amenity.id }}" name="amenities" value="{{ amenity.id }}" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                        <label for="amenity-{{ amenity.id }}" class="text-sm font-medium text-gray-900 dark:text-gray-300 flex items-center space-x-1 space-x-reverse">
+                            <i class="{{ amenity.icon }}"></i>
+                            <span>{{ amenity.name }}</span>
+                        </label>
                     </div>
-                    <div class="mb-3">
-                        <label for="type" class="form-label">نوع اتاق</label>
-                        <select class="form-select" id="type" name="type" required>
-                            <option value="">انتخاب نوع اتاق</option>
-                            {% for type in room_types %}
-                            <option value="{{ type.id }}">{{ type.name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label for="floor" class="form-label">طبقه</label>
-                        <input type="number" class="form-control" id="floor" name="floor" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="beds" class="form-label">تعداد تخت</label>
-                        <input type="number" class="form-control" id="beds" name="beds" required>
-                    </div>
+                    {% endfor %}
                 </div>
             </div>
-            <div class="mb-3">
-                <label for="description" class="form-label">توضیحات</label>
-                <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+            
+            <div class="md:col-span-2">
+                <label for="description" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">توضیحات</label>
+                <textarea id="description" name="description" rows="3" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"></textarea>
             </div>
-            <button type="submit" class="btn btn-primary">ثبت اتاق</button>
-        </form>
-    </div>
+        </div>
+        
+        <div class="mt-6 flex justify-end space-x-3 space-x-reverse">
+            <a href="{% url 'accounts:dashboard' %}" class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 px-4 py-2 rounded-lg">
+                انصراف
+            </a>
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
+                ذخیره اتاق
+            </button>
+        </div>
+    </form>
 </div>
-{% endblock %}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const roomTypeSelect = document.getElementById('room_type');
+        const priceInput = document.getElementById('price');
+
+        roomTypeSelect.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            const basePrice = selectedOption.getAttribute('data-price') || '0';
+            
+            const formattedPrice = parseInt(basePrice).toLocaleString('fa-IR');
+            priceInput.value = basePrice;
+        });
+
+        if (roomTypeSelect.value) {
+            roomTypeSelect.dispatchEvent(new Event('change'));
+        }
+    });
+</script>
+{% endblock %}  

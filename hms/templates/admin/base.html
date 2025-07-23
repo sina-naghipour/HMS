@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}سیستم مدیریت هتل{% endblock %}</title>
-    
+
     <!-- Fonts -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/font-face.css">
-    
+
     <!-- Tailwind CSS (light/dark) -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -21,59 +22,61 @@
             plugins: [require('@tailwindcss/forms'), require('@tailwindcss/typography')],
         }
     </script>
-    
+
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
+
     <!-- DataTables -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-    
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons@latest/iconfont/tabler-icons.min.css">
-    
+
     <style>
         [dir="rtl"] .ti-chevron-right:before {
             content: "\eb9e";
         }
+
         [dir="rtl"] .ti-chevron-left:before {
             content: "\eb9d";
         }
     </style>
 </head>
+
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 transition-colors duration-300">
     <div class="min-h-screen flex flex-col">
         {% include 'admin/includes/navbar.html' %}
-        
+
         <div class="flex flex-1">
             {% include 'admin/includes/sidebar.html' %}
-            
+
             <main class="flex-1 p-6 overflow-auto">
                 {% include 'admin/includes/breadcrumb.html' %}
                 {% include 'admin/includes/messages.html' %}
-                
+
                 {% block content %}{% endblock %}
             </main>
         </div>
-        
+
         {% include 'admin/includes/footer.html' %}
     </div>
-    
+
     <script>
         // Theme switcher
         function toggleTheme() {
             document.documentElement.classList.toggle('dark');
             localStorage.setItem('darkMode', document.documentElement.classList.contains('dark'));
         }
-        
+
         // Initialize theme
         if (localStorage.getItem('darkMode') === 'true') {
             document.documentElement.classList.add('dark');
         }
-        
+
         // Initialize DataTables
-        $(document).ready(function() {
+        $(document).ready(function () {
             $('.data-table').DataTable({
                 language: {
                     url: 'https://cdn.datatables.net/plug-ins/1.11.5/i18n/Persian.json'
@@ -81,7 +84,17 @@
             });
         });
     </script>
-    
+
     {% block scripts %}{% endblock %}
+    <script>
+        // Close profile menu when clicking elsewhere
+        document.addEventListener('click', function (event) {
+            const profileMenu = document.getElementById('profile-menu');
+            if (!event.target.closest('#profile-menu') && !event.target.closest('[onclick*="profile-menu"]')) {
+                profileMenu.classList.add('hidden');
+            }
+        });
+    </script>
 </body>
+
 </html>

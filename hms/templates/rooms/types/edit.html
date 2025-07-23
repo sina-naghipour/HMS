@@ -1,0 +1,123 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}ویرایش نوع اتاق {{ object.name }}{% endblock %}
+
+{% block breadcrumb %}
+<li aria-current="page">
+    <div class="flex items-center">
+        <i class="ti ti-chevron-left text-gray-400 mx-1"></i>
+        <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">مدیریت اتاق‌ها</span>
+    </div>
+</li>
+<li aria-current="page">
+    <div class="flex items-center">
+        <i class="ti ti-chevron-left text-gray-400 mx-1"></i>
+        <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">انواع اتاق‌ها</span>
+    </div>
+</li>
+<li aria-current="page">
+    <div class="flex items-center">
+        <i class="ti ti-chevron-left text-gray-400 mx-1"></i>
+        <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">ویرایش نوع اتاق</span>
+    </div>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="flex justify-between items-center">
+        <h1 class="text-2xl font-bold">ویرایش نوع اتاق {{ object.name }}</h1>
+        <div class="flex items-center space-x-2 space-x-reverse">
+            <a href="{% url 'rooms:types_list' %}" class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 px-4 py-2 rounded-lg">
+                بازگشت
+            </a>
+        </div>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <form method="post">
+            {% csrf_token %}
+            
+            {% if form.errors %}
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+                <strong class="font-bold">خطا!</strong>
+                <span class="block sm:inline">لطفا خطاهای زیر را اصلاح کنید.</span>
+                {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                    <p class="mt-1 text-sm">{{ error }}</p>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="{{ form.name.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                        نام نوع اتاق
+                    </label>
+                    <input type="text" name="name" id="id_name" value="{{ form.name.value|default_if_none:'' }}"
+                           class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                           required>
+                    {% if form.name.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.name.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <div>
+                    <label for="{{ form.base_price.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                        قیمت پایه
+                    </label>
+                    <input type="number" name="base_price" id="id_base_price" value="{{ form.base_price.value|default_if_none:'0' }}"
+                           class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                           required>
+                    {% if form.base_price.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.base_price.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="md:col-span-2">
+                    <label for="{{ form.description.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                        توضیحات
+                    </label>
+                    <textarea name="description" id="id_description" rows="4"
+                              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">{{ form.description.value|default_if_none:'' }}</textarea>
+                    {% if form.description.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.description.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="md:col-span-2">
+<!-- Add this where you want the amenities input to appear -->
+<div class="mb-6">
+    <label for="amenities_input" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white text-right">
+        امکانات پیش‌فرض
+    </label>
+    <input type="text"
+           name="amenities_input"
+           id="amenities_input"
+           value="{{ existing_amenities }}"
+           class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white text-right"
+           placeholder="مثال: وای‌فای، صبحانه، پارکینگ"
+           dir="rtl">
+    <p class="mt-1 text-sm text-gray-500 dark:text-gray-300 text-right">
+        امکانات را با کاما (،) یا فاصله از هم جدا کنید
+    </p>
+</div>
+                    {% if form.default_amenities.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.default_amenities.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="mt-6 flex justify-end space-x-2 space-x-reverse">
+                <a href="{% url 'rooms:types_list' %}" class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 px-4 py-2 rounded-lg">
+                    انصراف
+                </a>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg">
+                    ذخیره تغییرات
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

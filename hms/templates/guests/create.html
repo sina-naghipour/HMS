@@ -1,187 +1,181 @@
-{% extends "admin/base.html" %}
+{% extends 'admin/base.html' %}
 
-{% block title %}مدیریت مهمان‌ها | افزودن مهمان جدید{% endblock %}
+{% block title %}افزودن میهمان جدید{% endblock %}
 
 {% block breadcrumb %}
-<li class="breadcrumb-item"><a href="{% url 'accounts:dashboard' %}">داشبورد</a></li>
-<li class="breadcrumb-item"><a href="{% url 'guests:list' %}">لیست مهمان‌ها</a></li>
-<li class="breadcrumb-item active">افزودن مهمان جدید</li>
+<li aria-current="page">
+    <div class="flex items-center">
+        <i class="ti ti-chevron-left text-gray-400 mx-1"></i>
+        <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">مدیریت میهمانان</span>
+    </div>
+</li>
+<li aria-current="page">
+    <div class="flex items-center">
+        <i class="ti ti-chevron-left text-gray-400 mx-1"></i>
+        <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">افزودن میهمان جدید</span>
+    </div>
+</li>
 {% endblock %}
 
 {% block content %}
-<div class="card shadow-sm">
-    <div class="card-header" style="background-color: #27374D; color: white;">
-        <h4 class="mb-0">افزودن مهمان جدید</h4>
-    </div>
+<div class="space-y-6">
+    <h1 class="text-2xl font-bold">افزودن میهمان جدید</h1>
 
-    <div class="card-body">
-        <form method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            
-            <div class="row g-3">
-                <!-- Personal Information -->
-                <div class="col-md-6">
-                    <div class="card mb-4">
-                        <div class="card-header bg-light">
-                            <h5 class="mb-0">اطلاعات شخصی</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="mb-3">
-                                <label class="form-label">نام کامل</label>
-                                <div class="row g-2">
-                                    <div class="col-md-4">
-                                        <input type="text" class="form-control" placeholder="نام" required>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <input type="text" class="form-control" placeholder="نام خانوادگی" required>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <input type="text" class="form-control" placeholder="نام پدر">
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label class="form-label">کد ملی</label>
-                                <input type="text" class="form-control" placeholder="کد ملی" required>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label class="form-label">تاریخ تولد</label>
-                                <input type="text" class="form-control" placeholder="1370/05/15">
-                            </div>
-                            
-                            <div class="form-check form-switch mb-3">
-                                <input class="form-check-input" type="checkbox" id="isVip">
-                                <label class="form-check-label" for="isVip">مهمان VIP</label>
-                            </div>
-                        </div>
+    <form method="post" enctype="multipart/form-data" class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        {% csrf_token %}
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="md:col-span-2">
+                <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">تصویر پروفایل</label>
+                <div class="flex items-center space-x-4 space-x-reverse">
+                    <div class="relative">
+                        <img id="profile-preview" src="https://randomuser.me/api/portraits/men/1.jpg" alt="Preview" class="w-16 h-16 rounded-full object-cover">
+                        <input type="file" id="profile_image" name="profile_image" accept="image/*" class="hidden">
                     </div>
-                </div>
-                
-                <!-- Contact Information -->
-                <div class="col-md-6">
-                    <div class="card mb-4">
-                        <div class="card-header bg-light">
-                            <h5 class="mb-0">اطلاعات تماس</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="mb-3">
-                                <label class="form-label">تلفن همراه</label>
-                                <input type="tel" class="form-control" placeholder="09123456789" required>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label class="form-label">ایمیل</label>
-                                <input type="email" class="form-control" placeholder="example@domain.com">
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label class="form-label">تلفن ثابت</label>
-                                <input type="tel" class="form-control" placeholder="02144556677">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Address -->
-                <div class="col-md-12">
-                    <div class="card mb-4">
-                        <div class="card-header bg-light">
-                            <h5 class="mb-0">آدرس</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="row g-2">
-                                <div class="col-md-3">
-                                    <label class="form-label">استان</label>
-                                    <select class="form-select">
-                                        <option selected>تهران</option>
-                                        <option>البرز</option>
-                                        <option>اصفهان</option>
-                                        <option>شیراز</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label">شهر</label>
-                                    <select class="form-select">
-                                        <option selected>تهران</option>
-                                        <option>کرج</option>
-                                        <option>اسلامشهر</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">خیابان</label>
-                                    <input type="text" class="form-control" placeholder="خیابان اصلی">
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label">کوچه</label>
-                                    <input type="text" class="form-control" placeholder="کوچه فرعی">
-                                </div>
-                                <div class="col-md-2">
-                                    <label class="form-label">پلاک</label>
-                                    <input type="text" class="form-control" placeholder="۱۲">
-                                </div>
-                                <div class="col-md-2">
-                                    <label class="form-label">واحد</label>
-                                    <input type="text" class="form-control" placeholder="۳">
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label">کد پستی</label>
-                                    <input type="text" class="form-control" placeholder="1234567890">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Photo and Documents -->
-                <div class="col-md-12">
-                    <div class="card">
-                        <div class="card-header bg-light">
-                            <h5 class="mb-0">مدارک و تصاویر</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <label class="form-label">عکس پروفایل</label>
-                                    <input type="file" class="form-control" accept="image/*">
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label">تصویر کارت ملی</label>
-                                    <input type="file" class="form-control" accept="image/*">
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label">تصویر پاسپورت (اختیاری)</label>
-                                    <input type="file" class="form-control" accept="image/*">
-                                </div>
-                            </div>
-                        </div>
+                    <div>
+                        <button type="button" onclick="document.getElementById('profile_image').click()" class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 px-3 py-1.5 rounded-lg text-sm">
+                            تغییر تصویر
+                        </button>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">حداکثر 2MB</p>
                     </div>
                 </div>
             </div>
             
-            <div class="mt-4 d-flex justify-content-between">
-                <a href="{% url 'guests:list' %}" class="btn btn-secondary">انصراف</a>
-                <button type="submit" class="btn btn-success">ذخیره مهمان</button>
+            <div>
+                <label for="first_name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">نام</label>
+                <input type="text" id="first_name" name="first_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
             </div>
-        </form>
-    </div>
+            
+            <div>
+                <label for="last_name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">نام خانوادگی</label>
+                <input type="text" id="last_name" name="last_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+            </div>
+            
+            <div>
+                <label for="national_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">کد ملی</label>
+                <input type="text" id="national_id" name="national_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+            </div>
+            
+            <div>
+                <label for="phone" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">تلفن</label>
+                <input type="tel" id="phone" name="phone" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+            </div>
+            
+            <div>
+                <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">ایمیل</label>
+                <input type="email" id="email" name="email" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+            </div>
+            
+            <div>
+                <label for="birth_date" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">تاریخ تولد</label>
+                <input type="date" id="birth_date" name="birth_date" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+            </div>
+            
+            <div>
+                <label for="gender" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">جنسیت</label>
+                <select id="gender" name="gender" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                    <option value="">انتخاب کنید</option>
+                    <option value="male">مرد</option>
+                    <option value="female">زن</option>
+                    <option value="other">سایر</option>
+                </select>
+            </div>
+            
+            <div>
+                <label for="city" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">شهر</label>
+                <input type="text" id="city" name="city" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+            </div>
+            
+            <div>
+                <label for="country" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">کشور</label>
+                <input type="text" id="country" name="country" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+            </div>
+            
+            <div class="md:col-span-2">
+                <label for="address" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">آدرس</label>
+                <textarea id="address" name="address" rows="2" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"></textarea>
+            </div>
+            
+            <div class="md:col-span-2 border-t border-gray-200 dark:border-gray-700 pt-4">
+                <h3 class="text-lg font-medium mb-3">اطلاعات هویتی</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="id_type" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">نوع شناسنامه</label>
+                        <select id="id_type" name="id_type" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                            <option value="">انتخاب کنید</option>
+                            <option value="national_id">کد ملی</option>
+                            <option value="passport">پاسپورت</option>
+                            <option value="driver_license">گواهینامه</option>
+                            <option value="other">سایر</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label for="id_number" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">شماره شناسنامه</label>
+                        <input type="text" id="id_number" name="id_number" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                    </div>
+                    
+                    <div>
+                        <label for="id_issue_date" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">تاریخ صدور</label>
+                        <input type="date" id="id_issue_date" name="id_issue_date" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                    </div>
+                    
+                    <div>
+                        <label for="id_issue_place" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">محل صدور</label>
+                        <input type="text" id="id_issue_place" name="id_issue_place" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="md:col-span-2 border-t border-gray-200 dark:border-gray-700 pt-4">
+                <h3 class="text-lg font-medium mb-3">اطلاعات اضافی</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" name="is_vip" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                            <span class="mr-2 text-sm font-medium text-gray-900 dark:text-gray-300">مهمان VIP</span>
+                        </label>
+                    </div>
+                    
+                    <div>
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" name="is_regular" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                            <span class="mr-2 text-sm font-medium text-gray-900 dark:text-gray-300">مشتری دائمی</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="md:col-span-2">
+                <label for="notes" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">توضیحات</label>
+                <textarea id="notes" name="notes" rows="3" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"></textarea>
+            </div>
+        </div>
+        
+        <div class="mt-6 flex justify-end space-x-3 space-x-reverse">
+            <a href="{% url 'accounts:dashboard' %}" class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 px-4 py-2 rounded-lg">
+                انصراف
+            </a>
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
+                ذخیره میهمان
+            </button>
+        </div>
+    </form>
 </div>
-{% endblock %}
 
-{% block extra_css %}
-<style>
-    .form-check-input:checked {
-        background-color: #27374D;
-        border-color: #27374D;
-    }
-    
-    .card {
-        margin-bottom: 1.5rem;
-    }
-    
-    .card-header {
-        padding: 0.75rem 1.25rem;
-    }
-</style>
+<script>
+    // Profile image preview
+    document.getElementById('profile_image').addEventListener('change', function(e) {
+        const preview = document.getElementById('profile-preview');
+        const file = e.target.files[0];
+        
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+</script>
 {% endblock %}

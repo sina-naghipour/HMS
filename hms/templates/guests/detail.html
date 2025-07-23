@@ -1,200 +1,179 @@
-{% extends "admin/base.html" %}
+{% extends 'admin/base.html' %}
 
-{% block title %}مدیریت مهمان‌ها | پروفایل مهمان{% endblock %}
+{% block title %}پروفایل میهمان - {{ guest.full_name }}{% endblock %}
 
 {% block breadcrumb %}
-<li class="breadcrumb-item"><a href="{% url 'accounts:dashboard' %}">داشبورد</a></li>
-<li class="breadcrumb-item"><a href="{% url 'guests:list' %}">لیست مهمان‌ها</a></li>
-<li class="breadcrumb-item active">پروفایل مهمان</li>
+<li aria-current="page">
+    <div class="flex items-center">
+        <i class="ti ti-chevron-left text-gray-400 mx-1"></i>
+        <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">مدیریت میهمانان</span>
+    </div>
+</li>
+<li aria-current="page">
+    <div class="flex items-center">
+        <i class="ti ti-chevron-left text-gray-400 mx-1"></i>
+        <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">پروفایل میهمان</span>
+    </div>
+</li>
 {% endblock %}
 
 {% block content %}
-<div class="card shadow-sm">
-    <div class="card-header" style="background-color: #27374D; color: white;">
-        <h4 class="mb-0">پروفایل مهمان: محمد رضایی</h4>
+<div class="space-y-6">
+    <div class="flex justify-between items-center">
+        <h1 class="text-2xl font-bold">پروفایل میهمان</h1>
+        <div class="flex items-center space-x-2 space-x-reverse">
+            <a href="{% url 'accounts:dashboard' %}" class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 px-4 py-2 rounded-lg">
+                بازگشت
+            </a>
+            <a href="{% url 'accounts:dashboard' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
+                ویرایش پروفایل
+            </a>
+        </div>
     </div>
 
-    <div class="card-body">
-        <div class="row">
-            <!-- Guest Information -->
-            <div class="col-md-8">
-                <div class="card mb-4">
-                    <div class="card-header bg-light">
-                        <h5 class="mb-0">اطلاعات شخصی</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <p><strong>نام کامل:</strong> محمد رضایی</p>
-                                <p><strong>کد ملی:</strong> 1234567890</p>
-                                <p><strong>تاریخ تولد:</strong> 1370/05/15</p>
-                            </div>
-                            <div class="col-md-6">
-                                <p><strong>تلفن همراه:</strong> 09123456789</p>
-                                <p><strong>ایمیل:</strong> m.rezaei@example.com</p>
-                                <p><strong>وضعیت:</strong> 
-                                    <span class="badge bg-success">فعال</span>
-                                    <span class="badge bg-warning text-dark">VIP</span>
-                                </p>
-                            </div>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 space-y-6">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                <div class="flex items-start space-x-4 space-x-reverse">
+                    <img src="{{ guest.profile_image|default:'https://randomuser.me/api/portraits/men/1.jpg' }}" alt="{{ guest.full_name }}" class="w-16 h-16 rounded-full">
+                    <div>
+                        <h2 class="text-xl font-bold">{{ guest.full_name }}</h2>
+                        <p class="text-gray-500 dark:text-gray-400">{{ guest.national_id|default:"کد ملی ثبت نشده" }}</p>
+                        <div class="mt-2 flex flex-wrap gap-2">
+                            {% if guest.is_current_guest %}
+                            <span class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-full text-xs">مهمان فعلی</span>
+                            {% endif %}
+                            {% if guest.is_vip %}
+                            <span class="px-2 py-1 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 rounded-full text-xs">VIP</span>
+                            {% endif %}
+                            {% if guest.is_regular %}
+                            <span class="px-2 py-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 rounded-full text-xs">مشتری دائمی</span>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
 
-                <!-- Address -->
-                <div class="card mb-4">
-                    <div class="card-header bg-light">
-                        <h5 class="mb-0">اطلاعات تماس</h5>
+                <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-gray-500 dark:text-gray-400">تلفن</p>
+                        <p class="font-medium">{{ guest.phone }}</p>
                     </div>
-                    <div class="card-body">
-                        <p><strong>آدرس:</strong> تهران، خیابان آزادی، کوچه شهید فلانی، پلاک ۱۲</p>
-                        <p><strong>تلفن ثابت:</strong> 02144556677</p>
+                    <div>
+                        <p class="text-gray-500 dark:text-gray-400">ایمیل</p>
+                        <p class="font-medium">{{ guest.email|default:"-" }}</p>
                     </div>
-                </div>
-
-                <!-- Reservations History -->
-                <div class="card">
-                    <div class="card-header bg-light">
-                        <h5 class="mb-0">سابقه رزروها</h5>
+                    <div>
+                        <p class="text-gray-500 dark:text-gray-400">تاریخ تولد</p>
+                        <p class="font-medium">{{ guest.birth_date|date:"Y/m/d"|default:"-" }}</p>
                     </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-sm">
-                                <thead>
-                                    <tr>
-                                        <th>شماره رزرو</th>
-                                        <th>تاریخ</th>
-                                        <th>اتاق</th>
-                                        <th>وضعیت</th>
-                                        <th>مبلغ</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>RES-2023-125</td>
-                                        <td>1402/05/20</td>
-                                        <td>سوئیت ۲۰۱</td>
-                                        <td><span class="badge bg-success">تکمیل شده</span></td>
-                                        <td>3,500,000 تومان</td>
-                                    </tr>
-                                    <tr>
-                                        <td>RES-2023-087</td>
-                                        <td>1402/03/12</td>
-                                        <td>دبل ۱۰۳</td>
-                                        <td><span class="badge bg-success">تکمیل شده</span></td>
-                                        <td>2,100,000 تومان</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                    <div>
+                        <p class="text-gray-500 dark:text-gray-400">جنسیت</p>
+                        <p class="font-medium">{{ guest.get_gender_display|default:"-" }}</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-500 dark:text-gray-400">شهر</p>
+                        <p class="font-medium">{{ guest.city|default:"-" }}</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-500 dark:text-gray-400">کشور</p>
+                        <p class="font-medium">{{ guest.country|default:"-" }}</p>
+                    </div>
+                    <div class="md:col-span-2">
+                        <p class="text-gray-500 dark:text-gray-400">آدرس</p>
+                        <p class="font-medium">{{ guest.address|default:"-" }}</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Sidebar - Photo and Actions -->
-            <div class="col-md-4">
-                <!-- Guest Photo -->
-                <div class="card mb-4">
-                    <div class="card-header bg-light">
-                        <h5 class="mb-0">عکس پروفایل</h5>
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                <h2 class="text-xl font-semibold mb-4">اطلاعات هویتی</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-gray-500 dark:text-gray-400">نوع شناسنامه</p>
+                        <p class="font-medium">{{ guest.get_id_type_display|default:"-" }}</p>
                     </div>
-                    <div class="card-body text-center">
-                        <div class="mb-3">
-                            <img src="https://via.placeholder.com/200" alt="Guest Photo" class="img-fluid rounded-circle" style="width: 200px; height: 200px; object-fit: cover;">
-                        </div>
-                        <button class="btn btn-sm btn-outline-primary">تغییر عکس</button>
+                    <div>
+                        <p class="text-gray-500 dark:text-gray-400">شماره شناسنامه</p>
+                        <p class="font-medium">{{ guest.id_number|default:"-" }}</p>
                     </div>
-                </div>
-
-                <!-- Quick Actions -->
-                <div class="card mb-4">
-                    <div class="card-header bg-light">
-                        <h5 class="mb-0">عملیات سریع</h5>
+                    <div>
+                        <p class="text-gray-500 dark:text-gray-400">تاریخ صدور</p>
+                        <p class="font-medium">{{ guest.id_issue_date|date:"Y/m/d"|default:"-" }}</p>
                     </div>
-                    <div class="card-body">
-                        <div class="d-grid gap-2">
-                            <a href="#" class="btn btn-warning">
-                                <i class="fas fa-edit me-2"></i> ویرایش پروفایل
-                            </a>
-                            <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#blacklistModal">
-                                <i class="fas fa-ban me-2"></i> افزودن به لیست سیاه
-                            </button>
-                            <a href="#" class="btn btn-primary">
-                                <i class="fas fa-calendar-plus me-2"></i> رزرو جدید
-                            </a>
-                        </div>
+                    <div>
+                        <p class="text-gray-500 dark:text-gray-400">محل صدور</p>
+                        <p class="font-medium">{{ guest.id_issue_place|default:"-" }}</p>
                     </div>
                 </div>
+            </div>
+        </div>
 
-                <!-- Notes -->
-                <div class="card">
-                    <div class="card-header bg-light">
-                        <h5 class="mb-0">یادداشت‌ها</h5>
+        <div class="space-y-6">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                <h2 class="text-xl font-semibold mb-4">آمار اقامت</h2>
+                <div class="space-y-4">
+                    <div>
+                        <p class="text-gray-500 dark:text-gray-400">تعداد اقامت‌ها</p>
+                        <p class="font-medium text-2xl">{{ guest.stays_count }} بار</p>
                     </div>
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <textarea class="form-control" rows="3" placeholder="یادداشت جدید..."></textarea>
-                        </div>
-                        <button class="btn btn-sm btn-success">ذخیره یادداشت</button>
-                        
-                        <div class="mt-3">
-                            <div class="alert alert-light p-2 mb-2">
-                                <small class="text-muted">1402/05/22</small>
-                                <p class="mb-0">مهمان ترجیح می‌دهد اتاق نزدیک به آسانسور نباشد</p>
+                    <div>
+                        <p class="text-gray-500 dark:text-gray-400">مجموع شب‌ها</p>
+                        <p class="font-medium">{{ guest.total_nights }} شب</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-500 dark:text-gray-400">میانگین طول اقامت</p>
+                        <p class="font-medium">{{ guest.avg_stay_length|floatformat:"1" }} شب</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-500 dark:text-gray-400">آخرین اقامت</p>
+                        <p class="font-medium">{{ guest.last_stay_date|date:"Y/m/d"|default:"-" }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                <h2 class="text-xl font-semibold mb-4">رزروهای اخیر</h2>
+                <div class="space-y-3">
+                    {% for booking in guest.recent_bookings %}
+                    <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-3">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="font-medium">اتاق {{ booking.room.number }}</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">{{ booking.check_in|date:"Y/m/d" }} تا {{ booking.check_out|date:"Y/m/d" }}</p>
                             </div>
+                            <span class="text-xs px-2 py-1 rounded-full {% if booking.status == 'confirmed' %}bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200{% elif booking.status == 'pending' %}bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200{% else %}bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200{% endif %}">
+                                {{ booking.get_status_display }}
+                            </span>
                         </div>
                     </div>
+                    {% empty %}
+                    <div class="text-center text-gray-500 dark:text-gray-400 py-4">
+                        <i class="ti ti-calendar-off text-2xl mb-2"></i>
+                        <p>رزروی وجود ندارد</p>
+                    </div>
+                    {% endfor %}
+                    {% if guest.bookings_count > 3 %}
+                    <a href="{% url 'accounts:dashboard' %}" class="text-blue-600 dark:text-blue-400 text-sm text-center block mt-2">
+                        مشاهده همه ({{ guest.bookings_count }} رزرو)
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                <h2 class="text-xl font-semibold mb-4">ترجیحات</h2>
+                <div class="flex flex-wrap gap-2">
+                    {% for preference in guest.preferences.all %}
+                    <span class="bg-gray-100 dark:bg-gray-700 px-3 py-1.5 rounded-full flex items-center space-x-1 space-x-reverse">
+                        <i class="{{ preference.icon }}"></i>
+                        <span>{{ preference.name }}</span>
+                    </span>
+                    {% empty %}
+                    <p class="text-gray-500 dark:text-gray-400">ترجیحاتی ثبت نشده است</p>
+                    {% endfor %}
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-<!-- Blacklist Modal -->
-<div class="modal fade" id="blacklistModal" tabindex="-1" aria-labelledby="blacklistModalLabel" aria-hidden="true" dir="rtl">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-dark text-white">
-                <h5 class="modal-title" id="blacklistModalLabel">افزودن به لیست سیاه</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="mb-3">
-                    <label for="blacklistReason" class="form-label">دلیل</label>
-                    <select class="form-select" id="blacklistReason">
-                        <option value="payment">عدم پرداخت</option>
-                        <option value="behavior">رفتار نامناسب</option>
-                        <option value="damage">خرابی اموال</option>
-                        <option value="other">سایر</option>
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label for="blacklistDetails" class="form-label">توضیحات</label>
-                    <textarea class="form-control" id="blacklistDetails" rows="3"></textarea>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
-                <button type="button" class="btn btn-dark">تایید و ذخیره</button>
-            </div>
-        </div>
-    </div>
-</div>
-{% endblock %}
-
-{% block extra_css %}
-<style>
-    .badge {
-        font-size: 0.85rem;
-        padding: 0.35em 0.65em;
-    }
-    
-    .card-header h5 {
-        font-weight: 600;
-    }
-    
-    .table-sm td, .table-sm th {
-        padding: 0.5rem;
-    }
-</style>
 {% endblock %}

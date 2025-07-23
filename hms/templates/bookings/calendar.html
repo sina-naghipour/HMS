@@ -1,102 +1,193 @@
-{% extends "admin/base.html" %}
+{% extends 'admin/base.html' %}
 
 {% block title %}تقویم رزروها{% endblock %}
-{% block page_title %}تقویم رزروها{% endblock %}
 
 {% block breadcrumb %}
-{{ block.super }}
-<li class="breadcrumb-item active">تقویم رزروها</li>
+<li aria-current="page">
+    <div class="flex items-center">
+        <i class="ti ti-chevron-left text-gray-400 mx-1"></i>
+        <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">مدیریت رزروها</span>
+    </div>
+</li>
+<li aria-current="page">
+    <div class="flex items-center">
+        <i class="ti ti-chevron-left text-gray-400 mx-1"></i>
+        <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">نمایش تقویمی</span>
+    </div>
+</li>
 {% endblock %}
 
 {% block content %}
-<div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <h5>تقویم رزروها</h5>
-        <div class="btn-group">
-            <button class="btn btn-outline-secondary" id="prev-month">
-                <i class="fas fa-chevron-right"></i> ماه قبل
+<div class="space-y-6">
+    <div class="flex justify-between items-center">
+        <h1 class="text-2xl font-bold">تقویم رزروها</h1>
+        <div class="flex items-center space-x-2 space-x-reverse">
+            <button id="prev-month" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
+                <i class="ti ti-chevron-right"></i>
             </button>
-            <button class="btn btn-outline-primary" disabled id="current-month">
-                {{ current_month|date:"F Y" }}
+            <h2 id="current-month" class="text-xl font-semibold">مرداد ۱۴۰۲</h2>
+            <button id="next-month" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
+                <i class="ti ti-chevron-left"></i>
             </button>
-            <button class="btn btn-outline-secondary" id="next-month">
-                ماه بعد <i class="fas fa-chevron-left"></i>
+            <button id="today" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-lg text-sm">
+                امروز
             </button>
         </div>
     </div>
-    <div class="card-body">
-        <div id="booking-calendar"></div>
+
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+        <div id="calendar" class="p-4"></div>
     </div>
 </div>
 
-<style>
-    #booking-calendar {
-        min-height: 600px;
-    }
-    .fc-event {
-        cursor: pointer;
-    }
-    .fc-event.confirmed {
-        background-color: #7366ff;
-        border-color: #7366ff;
-    }
-    .fc-event.pending {
-        background-color: #f8d62b;
-        border-color: #f8d62b;
-        color: #000;
-    }
-    .fc-event.cancelled {
-        background-color: #dc3545;
-        border-color: #dc3545;
-    }
-</style>
+<!-- FullCalendar CSS -->
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
 
-{% endblock %}
+<!-- FullCalendar JS -->
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/fa.min.js"></script>
 
-{% block extra_js %}
 <script>
-    $(document).ready(function() {
-        // Initialize calendar
-        var calendarEl = document.getElementById('booking-calendar');
-        var calendar = new FullCalendar.Calendar(calendarEl, {
+    document.addEventListener('DOMContentLoaded', function() {
+        const calendarEl = document.getElementById('calendar');
+        
+        // Sample dummy data for bookings
+        const dummyBookings = [
+            {
+                title: 'اتاق ۲۰۱ - علی محمدی',
+                start: '2023-08-01',
+                end: '2023-08-05',
+                color: '#10B981', // Green for confirmed
+                url: '#'
+            },
+            {
+                title: 'اتاق ۱۰۵ - زهرا رضایی',
+                start: '2023-08-03',
+                end: '2023-08-07',
+                color: '#10B981',
+                url: '#'
+            },
+            {
+                title: 'اتاق ۳۰۲ - محسن کریمی',
+                start: '2023-08-10',
+                end: '2023-08-15',
+                color: '#F59E0B', // Yellow for pending
+                url: '#'
+            },
+            {
+                title: 'اتاق ۲۰۵ - فاطمه احمدی',
+                start: '2023-08-12',
+                end: '2023-08-14',
+                color: '#10B981',
+                url: '#'
+            },
+            {
+                title: 'اتاق ۱۰۱ - رضا حسینی',
+                start: '2023-08-18',
+                end: '2023-08-22',
+                color: '#EF4444', // Red for cancelled
+                url: '#'
+            },
+            {
+                title: 'اتاق ۴۰۱ - نسترن محمدپور',
+                start: '2023-08-20',
+                end: '2023-08-25',
+                color: '#10B981',
+                url: '#'
+            },
+            {
+                title: 'اتاق ۲۰۳ - امیرحسین اکبری',
+                start: '2023-08-25',
+                end: '2023-08-30',
+                color: '#F59E0B',
+                url: '#'
+            }
+        ];
+        
+        const calendar = new FullCalendar.Calendar(calendarEl, {
             locale: 'fa',
             direction: 'rtl',
             initialView: 'dayGridMonth',
             headerToolbar: false,
-            events: [
-                {% for booking in bookings %}
-                {
-                    id: '{{ booking.id }}',
-                    title: 'اتاق {{ booking.room.number }} - {{ booking.guest.name }}',
-                    start: '{{ booking.check_in|date:"Y-m-d" }}',
-                    end: '{{ booking.check_out|date:"Y-m-d" }}',
-                    className: '{{ booking.status }}',
-                    url: '{% url 'accounts:dashboard' %}'
-                },
-                {% endfor %}
-            ],
+            events: dummyBookings,
             eventClick: function(info) {
-                window.location.href = info.event.url;
+                info.jsEvent.preventDefault();
+                // In a real app, this would redirect to booking details
+                alert('نمایش جزئیات رزرو: ' + info.event.title);
+            },
+            eventContent: function(arg) {
+                // Custom event display with icons
+                const statusIcon = arg.event.backgroundColor === '#10B981' ? '✓' : 
+                                  arg.event.backgroundColor === '#F59E0B' ? '⌛' : '✗';
+                
+                return {
+                    html: `
+                        <div class="fc-event-main-frame">
+                            <div class="fc-event-title-container">
+                                <span class="fc-event-title">${statusIcon} ${arg.event.title}</span>
+                            </div>
+                        </div>
+                    `
+                };
             }
         });
+        
         calendar.render();
-
-        // Month navigation
-        $('#prev-month').click(function() {
-            calendar.prev();
-            updateMonthDisplay();
-        });
-
-        $('#next-month').click(function() {
-            calendar.next();
-            updateMonthDisplay();
-        });
-
-        function updateMonthDisplay() {
-            var date = calendar.getDate();
-            var month = date.toLocaleString('fa-IR', { month: 'long', year: 'numeric' });
-            $('#current-month').text(month);
+        
+        // Update month name
+        function updateMonthName() {
+            const date = calendar.getDate();
+            const options = { month: 'long', year: 'numeric' };
+            document.getElementById('current-month').textContent = date.toLocaleDateString('fa-IR', options);
         }
+        
+        updateMonthName();
+        
+        // Navigation buttons
+        document.getElementById('prev-month').addEventListener('click', function() {
+            calendar.prev();
+            updateMonthName();
+        });
+        
+        document.getElementById('next-month').addEventListener('click', function() {
+            calendar.next();
+            updateMonthName();
+        });
+        
+        document.getElementById('today').addEventListener('click', function() {
+            calendar.today();
+            updateMonthName();
+        });
     });
 </script>
+
+<style>
+    .fc .fc-toolbar-title {
+        font-size: 1.2em;
+    }
+    .fc .fc-col-header-cell-cushion {
+        font-weight: normal;
+    }
+    .fc-event {
+        cursor: pointer;
+        margin-bottom: 2px;
+    }
+    .fc-event-title {
+        font-size: 0.8em;
+        white-space: normal;
+        padding: 2px;
+    }
+    .fc-daygrid-event-dot {
+        display: none; /* Hide the default dot */
+    }
+    .fc-daygrid-day-frame {
+        overflow: visible; /* Allow events to overflow slightly */
+    }
+    .fc-daygrid-day-events {
+        min-height: 2em; /* Ensure space for events */
+    }
+    .fc-day-today {
+        background-color: rgba(59, 130, 246, 0.1) !important;
+    }
+</style>
 {% endblock %}

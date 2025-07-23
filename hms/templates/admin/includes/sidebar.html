@@ -2,69 +2,138 @@
     <div class="p-4 border-b border-gray-200 dark:border-gray-700">
         <h2 class="text-xl font-bold">پنل مدیریت هتل</h2>
     </div>
-    
+
     <nav class="p-4 space-y-2">
-        <a href="{% url 'accounts:dashboard' %}" class="flex items-center space-x-2 space-x-reverse p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-blue-600 dark:text-blue-400">
+        <a href="{% url 'accounts:dashboard' %}"
+            class="flex items-center space-x-2 space-x-reverse p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-blue-600 dark:text-blue-400">
             <i class="ti ti-layout-dashboard"></i>
             <span>داشبورد</span>
         </a>
-        
+
         <div class="py-2">
             <h3 class="px-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">مدیریت</h3>
-            
+
             <div class="mt-2 space-y-1">
-                <a href="{% url 'accounts:dashboard' %}" class="flex items-center space-x-2 space-x-reverse p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
-                    <i class="ti ti-calendar"></i>
-                    <span>رزرواسیون</span>
-                </a>
-                
-                <a href="{% url 'accounts:dashboard' %}" class="flex items-center space-x-2 space-x-reverse p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
-                    <i class="ti ti-bed"></i>
-                    <span>اتاق‌ها</span>
-                </a>
-                
-                <a href="{% url 'accounts:dashboard' %}" class="flex items-center space-x-2 space-x-reverse p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
-                    <i class="ti ti-users"></i>
-                    <span>میهمانان</span>
-                </a>
-                
-                <a href="{% url 'accounts:dashboard' %}" class="flex items-center space-x-2 space-x-reverse p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
-                    <i class="ti ti-user-cog"></i>
-                    <span>کارکنان</span>
-                </a>
+                <div x-data="{ open: false }" class="space-y-1">
+                    <button @click="open = !open"
+                        class="w-full flex items-center space-x-2 space-x-reverse p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <i class="ti ti-calendar"></i>
+                        <span class="flex-1 text-right">رزرواسیون</span>
+                        <i class="ti ti-chevron-down transition-transform" :class="{'transform rotate-180': open}"></i>
+                    </button>
+
+                    <div x-show="open" x-collapse class="pr-6 space-y-1">
+                        <a href="{% url 'bookings:list' %}"
+                            class="flex items-center space-x-2 space-x-reverse p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-sm">
+                            <i class="ti ti-list"></i>
+                            <span>لیست رزروها</span>
+                        </a>
+                        <a href="{% url 'bookings:create' %}"
+                            class="flex items-center space-x-2 space-x-reverse p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-sm">
+                            <i class="ti ti-plus"></i>
+                            <span>رزرو جدید</span>
+                        </a>
+                        <a href="{% url 'bookings:calendar' %}"
+                            class="flex items-center space-x-2 space-x-reverse p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-sm">
+                            <i class="ti ti-calendar-event"></i>
+                            <span>تقویم رزروها</span>
+                        </a>
+                    </div>
+                </div>
+                <!-- Rooms Parent Item -->
+                <div x-data="{ open: false }" class="space-y-1">
+                    <button @click="open = !open"
+                        class="w-full flex items-center space-x-2 space-x-reverse p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <i class="ti ti-bed"></i>
+                        <span class="flex-1 text-right">اتاق‌ها</span>
+                        <i class="ti ti-chevron-down transition-transform" :class="{'transform rotate-180': open}"></i>
+                    </button>
+
+                    <!-- Rooms Submenu -->
+                    <div x-show="open" x-collapse class="pr-6 space-y-1">
+                        <a href="{% url 'rooms:list' %}"
+                            class="flex items-center space-x-2 space-x-reverse p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-sm">
+                            <i class="ti ti-list"></i>
+                            <span>لیست اتاق‌ها</span>
+                        </a>
+                        <a href="{% url 'rooms:create' %}"
+                            class="flex items-center space-x-2 space-x-reverse p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-sm">
+                            <i class="ti ti-plus"></i>
+                            <span>ایجاد اتاق جدید</span>
+                        </a>
+                    </div>
+                </div>
+                <!-- Room Types Parent Item -->
+                <div x-data="{ open: false }" class="space-y-1">
+                    <button @click="open = !open"
+                        class="w-full flex items-center space-x-2 space-x-reverse p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <i class="ti ti-category"></i>
+                        <span class="flex-1 text-right">انواع اتاق‌ها</span>
+                        <i class="ti ti-chevron-down transition-transform" :class="{'transform rotate-180': open}"></i>
+                    </button>
+                    <!-- Room Types Submenu -->
+                    <div x-show="open" x-collapse class="pr-6 space-y-1">
+                        <a href="{% url 'rooms:types_list' %}"
+                            class="flex items-center space-x-2 space-x-reverse p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-sm">
+                            <i class="ti ti-list"></i>
+                            <span>لیست انواع اتاق‌ها</span>
+                        </a>
+                        <a href="{% url 'rooms:types_create' %}"
+                            class="flex items-center space-x-2 space-x-reverse p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-sm">
+                            <i class="ti ti-plus"></i>
+                            <span>ایجاد نوع جدید</span>
+                        </a>
+                    </div>
+                    <a href="{% url 'guests:list' %}"
+                        class="flex items-center space-x-2 space-x-reverse p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <i class="ti ti-users"></i>
+                        <span>میهمانان</span>
+                    </a>
+
+                    <a href="{% url 'staff:list' %}"
+                        class="flex items-center space-x-2 space-x-reverse p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <i class="ti ti-user-cog"></i>
+                        <span>کارکنان</span>
+                    </a>
+                </div>
             </div>
-        </div>
-        
-        <div class="py-2">
-            <h3 class="px-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">گزارشات</h3>
-            
-            <div class="mt-2 space-y-1">
-                <a href="{% url 'accounts:dashboard' %}" class="flex items-center space-x-2 space-x-reverse p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
-                    <i class="ti ti-chart-bar"></i>
-                    <span>اشغال اتاق‌ها</span>
-                </a>
-                
-                <a href="{% url 'accounts:dashboard' %}" class="flex items-center space-x-2 space-x-reverse p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
-                    <i class="ti ti-cash"></i>
-                    <span>درآمد</span>
-                </a>
+
+            <div class="py-2">
+                <h3 class="px-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">گزارشات
+                </h3>
+
+                <div class="mt-2 space-y-1">
+                    <a href="{% url 'reports:occupancy' %}"
+                        class="flex items-center space-x-2 space-x-reverse p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <i class="ti ti-chart-bar"></i>
+                        <span>اشغال اتاق‌ها</span>
+                    </a>
+
+                    <a href="{% url 'reports:revenue' %}"
+                        class="flex items-center space-x-2 space-x-reverse p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <i class="ti ti-cash"></i>
+                        <span>درآمد</span>
+                    </a>
+                </div>
             </div>
-        </div>
-        
-        <div class="py-2">
-            <h3 class="px-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">تنظیمات</h3>
-            
-            <div class="mt-2 space-y-1">
-                <a href="{% url 'accounts:dashboard' %}" class="flex items-center space-x-2 space-x-reverse p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
-                    <i class="ti ti-settings"></i>
-                    <span>عمومی</span>
-                </a>
-                
-                <a href="{% url 'accounts:dashboard' %}" class="flex items-center space-x-2 space-x-reverse p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
-                    <i class="ti ti-credit-card"></i>
-                    <span>پرداخت</span>
-                </a>
+
+            <div class="py-2">
+                <h3 class="px-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">تنظیمات
+                </h3>
+
+                <div class="mt-2 space-y-1">
+                    <a href="{% url 'settings:general' %}"
+                        class="flex items-center space-x-2 space-x-reverse p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <i class="ti ti-settings"></i>
+                        <span>عمومی</span>
+                    </a>
+
+                    <a href="{% url 'accounts:dashboard' %}"
+                        class="flex items-center space-x-2 space-x-reverse p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <i class="ti ti-credit-card"></i>
+                        <span>پرداخت</span>
+                    </a>
+                </div>
             </div>
-        </div>
     </nav>
 </aside>

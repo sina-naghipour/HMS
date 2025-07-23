@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+
+{% block title %}ثبت نام{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+            <div class="p-6 bg-blue-600 dark:bg-blue-700 text-white">
+                <h1 class="text-2xl font-bold text-center">ثبت نام در سیستم</h1>
+            </div>
+            <div class="p-6">
+                <form method="post" class="space-y-4">
+                    {% csrf_token %}
+                    
+                    {% if form.non_field_errors %}
+                        <div class="text-red-500 text-sm">
+                            {% for error in form.non_field_errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <!-- Username Field -->
+                    <div>
+                        <label for="{{ form.username.id_for_label }}" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">نام کاربری</label>
+                        {{ form.username }}
+                        {% if form.username.errors %}
+                            <div class="text-red-500 text-sm mt-1">
+                                {% for error in form.username.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                            فقط شامل حروف، اعداد و @/./+/-/_ می‌تواند باشد.
+                        </p>
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.email.id_for_label }}" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">ایمیل</label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                            <div class="text-red-500 text-sm mt-1">
+                                {% for error in form.email.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.first_name.id_for_label }}" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">نام</label>
+                        {{ form.first_name }}
+                        {% if form.first_name.errors %}
+                            <div class="text-red-500 text-sm mt-1">
+                                {% for error in form.first_name.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.last_name.id_for_label }}" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">نام خانوادگی</label>
+                        {{ form.last_name }}
+                        {% if form.last_name.errors %}
+                            <div class="text-red-500 text-sm mt-1">
+                                {% for error in form.last_name.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.password1.id_for_label }}" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">رمز عبور</label>
+                        {{ form.password1 }}
+                        {% if form.password1.errors %}
+                            <div class="text-red-500 text-sm mt-1">
+                                {% for error in form.password1.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                            رمز عبور باید حداقل 8 کاراکتر داشته باشد و فقط از اعداد و حروف نباشد.
+                        </p>
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.password2.id_for_label }}" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">تکرار رمز عبور</label>
+                        {{ form.password2 }}
+                        {% if form.password2.errors %}
+                            <div class="text-red-500 text-sm mt-1">
+                                {% for error in form.password2.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="flex items-start">
+                        <div class="flex items-center h-5">
+                            <input id="terms" name="terms" type="checkbox" required 
+                                   class="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800">
+                        </div>
+                        <label for="terms" class="mr-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+                            با <a href="#" class="text-blue-600 dark:text-blue-400 hover:underline">شرایط و ضوابط</a> موافقم
+                        </label>
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+                        ثبت نام
+                    </button>
+                    
+                    <div class="text-sm text-center text-gray-500 dark:text-gray-400">
+                        قبلاً ثبت نام کرده‌اید؟ <a href="{% url 'accounts:login' %}" class="text-blue-600 dark:text-blue-400 hover:underline">وارد شوید</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

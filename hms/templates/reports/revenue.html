@@ -1,296 +1,275 @@
-{% extends "admin/base.html" %}
+{% extends 'admin/base.html' %}
 
-{% block title %}گزارشات | گزارش درآمد{% endblock %}
+{% block title %}گزارش درآمد{% endblock %}
 
 {% block breadcrumb %}
-<li class="breadcrumb-item"><a href="{% url 'accounts:dashboard' %}">داشبورد</a></li>
-<li class="breadcrumb-item"><a href="{% url 'reports:index' %}">گزارشات</a></li>
-<li class="breadcrumb-item active">گزارش درآمد</li>
+<li aria-current="page">
+    <div class="flex items-center">
+        <i class="ti ti-chevron-left text-gray-400 mx-1"></i>
+        <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">گزارشات</span>
+    </div>
+</li>
+<li aria-current="page">
+    <div class="flex items-center">
+        <i class="ti ti-chevron-left text-gray-400 mx-1"></i>
+        <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">گزارش درآمد</span>
+    </div>
+</li>
 {% endblock %}
 
 {% block content %}
-<div class="card shadow-sm">
-    <div class="card-header" style="background-color: #27374D; color: white;">
-        <h4 class="mb-0">گزارش درآمد</h4>
-    </div>
+<div class="space-y-6">
+    <h1 class="text-2xl font-bold">گزارش درآمد</h1>
 
-    <div class="card-body">
-        <!-- Filters -->
-        <div class="row mb-4">
-            <div class="col-md-12">
-                <div class="card filter-card">
-                    <div class="card-body">
-                        <form>
-                            <div class="row g-3">
-                                <div class="col-md-3">
-                                    <label class="form-label">دوره گزارش</label>
-                                    <select class="form-select">
-                                        <option value="daily">روزانه</option>
-                                        <option value="weekly">هفتگی</option>
-                                        <option value="monthly" selected>ماهانه</option>
-                                        <option value="yearly">سالانه</option>
-                                        <option value="custom">سفارشی</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label">از تاریخ</label>
-                                    <input type="text" class="form-control datepicker" placeholder="1402/01/01">
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label">تا تاریخ</label>
-                                    <input type="text" class="form-control datepicker" placeholder="1402/06/30">
-                                </div>
-                                <div class="col-md-3 d-flex align-items-end">
-                                    <button type="submit" class="btn btn-primary w-100">
-                                        <i class="fas fa-filter me-2"></i> اعمال فیلتر
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0 space-x-0 md:space-x-4 space-x-reverse">
+            <div class="flex items-center space-x-3 space-x-reverse">
+                <div class="relative">
+                    <input type="text" id="revenue-range" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="انتخاب بازه زمانی">
+                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                        <i class="ti ti-calendar text-gray-400"></i>
                     </div>
+                </div>
+                <select id="revenue-type" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                    <option value="all">همه درآمدها</option>
+                    <option value="room">درآمد اتاق</option>
+                    <option value="service">خدمات اضافه</option>
+                    <option value="restaurant">رستوران</option>
+                </select>
+            </div>
+            <div class="flex space-x-2 space-x-reverse">
+                <button id="generate-revenue-report" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
+                    تولید گزارش
+                </button>
+                <button id="print-revenue-report" class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 px-4 py-2 rounded-lg flex items-center space-x-1 space-x-reverse">
+                    <i class="ti ti-printer"></i>
+                    <span>چاپ</span>
+                </button>
+                <button id="export-revenue-report" class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 px-4 py-2 rounded-lg flex items-center space-x-1 space-x-reverse">
+                    <i class="ti ti-download"></i>
+                    <span>خروجی Excel</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="bg-purple-50 dark:bg-purple-900/30 border border-purple-100 dark:border-purple-900 rounded-lg p-4">
+                <h3 class="text-lg font-semibold text-purple-800 dark:text-purple-200">درآمد کل</h3>
+                <p class="text-3xl font-bold mt-2 text-purple-600 dark:text-purple-300">۲۴۵,۶۰۰,۰۰۰ تومان</p>
+                <div class="flex items-center mt-2 text-sm text-purple-600 dark:text-purple-300">
+                    <i class="ti ti-trending-up mr-1"></i>
+                    <span>۱۲% افزایش نسبت به ماه قبل</span>
+                </div>
+            </div>
+            <div class="bg-green-50 dark:bg-green-900/30 border border-green-100 dark:border-green-900 rounded-lg p-4">
+                <h3 class="text-lg font-semibold text-green-800 dark:text-green-200">میانگین درآمد روزانه</h3>
+                <p class="text-3xl font-bold mt-2 text-green-600 dark:text-green-300">۸,۱۸۶,۶۶۷ تومان</p>
+                <div class="flex items-center mt-2 text-sm text-green-600 dark:text-green-300">
+                    <i class="ti ti-trending-up mr-1"></i>
+                    <span>۷% افزایش نسبت به ماه قبل</span>
+                </div>
+            </div>
+            <div class="bg-blue-50 dark:bg-blue-900/30 border border-blue-100 dark:border-blue-900 rounded-lg p-4">
+                <h3 class="text-lg font-semibold text-blue-800 dark:text-blue-200">درآمد خدمات اضافه</h3>
+                <p class="text-3xl font-bold mt-2 text-blue-600 dark:text-blue-300">۳۴,۸۰۰,۰۰۰ تومان</p>
+                <div class="flex items-center mt-2 text-sm text-blue-600 dark:text-blue-300">
+                    <i class="ti ti-trending-up mr-1"></i>
+                    <span>۱۸% افزایش نسبت به ماه قبل</span>
                 </div>
             </div>
         </div>
 
-        <!-- Summary Cards -->
-        <div class="row mb-4">
-            <div class="col-md-3">
-                <div class="card text-white mb-3" style="background-color: #4361ee;">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">کل درآمد</h5>
-                        <h2 class="card-text">4,749,000,000 تومان</h2>
-                    </div>
-                </div>
+        <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div>
+                <h3 class="text-lg font-semibold mb-4">نمودار درآمد ماهانه</h3>
+                <canvas id="revenueChart" height="300"></canvas>
             </div>
-            <div class="col-md-3">
-                <div class="card text-white mb-3" style="background-color: #4bb543;">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">میانگین روزانه</h5>
-                        <h2 class="card-text">26,000,000 تومان</h2>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card text-white mb-3" style="background-color: #ffcc00;">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">پرفروش‌ترین اتاق</h5>
-                        <h2 class="card-text">سوئیت ۲۰۱</h2>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card text-white mb-3" style="background-color: #ff3333;">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">کم‌فروش‌ترین اتاق</h5>
-                        <h2 class="card-text">سینگل ۱۰۳</h2>
-                    </div>
-                </div>
+            <div>
+                <h3 class="text-lg font-semibold mb-4">توزیع درآمد</h3>
+                <canvas id="revenuePieChart" height="300"></canvas>
             </div>
         </div>
 
-        <!-- Chart -->
-        <div class="card mb-4">
-            <div class="card-header bg-light">
-                <h5 class="mb-0">نمودار درآمد ماهانه</h5>
-            </div>
-            <div class="card-body">
-                <div class="chart-container" style="height: 300px;">
-                    <canvas id="revenueChart"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <!-- Revenue Breakdown -->
-        <div class="card mb-4">
-            <div class="card-header bg-light">
-                <h5 class="mb-0">تفکیک درآمد</h5>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="chart-container" style="height: 250px;">
-                            <canvas id="revenueByTypeChart"></canvas>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="chart-container" style="height: 250px;">
-                            <canvas id="revenueBySourceChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Detailed Report -->
-        <div class="card">
-            <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">گزارش تفصیلی</h5>
-                <div>
-                    <button class="btn btn-sm btn-success me-2">
-                        <i class="fas fa-file-excel me-2"></i> خروجی Excel
-                    </button>
-                    <button class="btn btn-sm btn-primary">
-                        <i class="fas fa-print me-2"></i> چاپ گزارش
-                    </button>
-                </div>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>تاریخ</th>
-                                <th>تعداد رزرو</th>
-                                <th>درآمد اتاق</th>
-                                <th>درآمد رستوران</th>
-                                <th>سایر درآمدها</th>
-                                <th>جمع کل</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>1402/01/01</td>
-                                <td>12</td>
-                                <td>24,500,000 تومان</td>
-                                <td>3,200,000 تومان</td>
-                                <td>1,500,000 تومان</td>
-                                <td>29,200,000 تومان</td>
-                            </tr>
-                            <tr>
-                                <td>1402/01/02</td>
-                                <td>15</td>
-                                <td>30,000,000 تومان</td>
-                                <td>4,500,000 تومان</td>
-                                <td>2,000,000 تومان</td>
-                                <td>36,500,000 تومان</td>
-                            </tr>
-                            <!-- More rows... -->
-                        </tbody>
-                        <tfoot class="table-dark">
-                            <tr>
-                                <th>جمع کل</th>
-                                <th>180</th>
-                                <th>3,650,000,000 تومان</th>
-                                <th>750,000,000 تومان</th>
-                                <th>349,000,000 تومان</th>
-                                <th>4,749,000,000 تومان</th>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
+        <div class="mt-8">
+            <h3 class="text-lg font-semibold mb-4">جزئیات درآمد روزانه</h3>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead class="bg-gray-50 dark:bg-gray-800">
+                        <tr>
+                            <th class="px-4 py-3 text-right">تاریخ</th>
+                            <th class="px-4 py-3 text-right">درآمد اتاق</th>
+                            <th class="px-4 py-3 text-right">خدمات اضافه</th>
+                            <th class="px-4 py-3 text-right">مالیات</th>
+                            <th class="px-4 py-3 text-right">جمع کل</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                        {% for day in daily_revenue %}
+                        <tr>
+                            <td class="px-4 py-3">{{ day.date|date:"Y/m/d" }}</td>
+                            <td class="px-4 py-3">{{ day.room_revenue|floatformat:"0" }} تومان</td>
+                            <td class="px-4 py-3">{{ day.service_revenue|floatformat:"0" }} تومان</td>
+                            <td class="px-4 py-3">{{ day.tax|floatformat:"0" }} تومان</td>
+                            <td class="px-4 py-3 font-medium">{{ day.total|floatformat:"0" }} تومان</td>
+                        </tr>
+                        {% endfor %}
+                        <tr class="bg-gray-50 dark:bg-gray-700/50 font-bold">
+                            <td class="px-4 py-3">جمع کل</td>
+                            <td class="px-4 py-3">{{ total.room_revenue|floatformat:"0" }} تومان</td>
+                            <td class="px-4 py-3">{{ total.service_revenue|floatformat:"0" }} تومان</td>
+                            <td class="px-4 py-3">{{ total.tax|floatformat:"0" }} تومان</td>
+                            <td class="px-4 py-3">{{ total.total|floatformat:"0" }} تومان</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 </div>
-{% endblock %}
 
-{% block extra_js %}
 <script>
-    // Sample Chart.js implementation
-    document.addEventListener('DOMContentLoaded', function() {
-        // Main Revenue Chart
-        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
-        const revenueChart = new Chart(revenueCtx, {
-            type: 'line',
-            data: {
-                labels: ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور'],
-                datasets: [{
-                    label: 'درآمد (میلیون تومان)',
-                    data: [650, 720, 800, 850, 820, 780],
-                    backgroundColor: 'rgba(67, 97, 238, 0.2)',
-                    borderColor: '#4361ee',
-                    borderWidth: 2,
-                    tension: 0.4,
-                    fill: true
-                }]
+    // Initialize date range picker
+    $(function() {
+        $('#revenue-range').daterangepicker({
+            locale: {
+                format: 'YYYY/MM/DD',
+                applyLabel: 'تایید',
+                cancelLabel: 'انصراف',
+                fromLabel: 'از',
+                toLabel: 'تا',
+                customRangeLabel: 'سفارشی',
+                daysOfWeek: ['ش', 'ی', 'د', 'س', 'چ', 'پ', 'ج'],
+                monthNames: ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'],
+                firstDay: 6
             },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'میلیون تومان'
+            opens: 'right',
+            autoUpdateInput: false
+        });
+
+        $('#revenue-range').on('apply.daterangepicker', function(ev, picker) {
+            $(this).val(picker.startDate.format('YYYY/MM/DD') + ' - ' + picker.endDate.format('YYYY/MM/DD'));
+        });
+
+        $('#revenue-range').on('cancel.daterangepicker', function(ev, picker) {
+            $(this).val('');
+        });
+    });
+
+    // Initialize revenue chart
+    const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+    const revenueChart = new Chart(revenueCtx, {
+        type: 'bar',
+        data: {
+            labels: ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر'],
+            datasets: [
+                {
+                    label: 'درآمد اتاق',
+                    data: [65000000, 72000000, 85000000, 78000000, 92000000, 95000000, 88000000],
+                    backgroundColor: 'rgba(59, 130, 246, 0.7)',
+                    borderColor: 'rgb(59, 130, 246)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'خدمات اضافه',
+                    data: [8500000, 9200000, 10500000, 9800000, 11800000, 12500000, 10800000],
+                    backgroundColor: 'rgba(16, 185, 129, 0.7)',
+                    borderColor: 'rgb(16, 185, 129)',
+                    borderWidth: 1
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                    rtl: true
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            label += new Intl.NumberFormat('fa-IR').format(context.raw) + ' تومان';
+                            return label;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return new Intl.NumberFormat('fa-IR').format(value) + ' تومان';
                         }
                     }
                 }
             }
-        });
+        }
+    });
 
-        // Revenue by Type Chart
-        const typeCtx = document.getElementById('revenueByTypeChart').getContext('2d');
-        const typeChart = new Chart(typeCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['سوئیت', 'دبل', 'سینگل'],
-                datasets: [{
-                    data: [2225, 1740, 784],
-                    backgroundColor: [
-                        '#4361ee',
-                        '#4bb543',
-                        '#ffcc00'
-                    ]
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                    },
-                    title: {
-                        display: true,
-                        text: 'درآمد بر اساس نوع اتاق (میلیون تومان)'
+    // Initialize revenue pie chart
+    const revenuePieCtx = document.getElementById('revenuePieChart').getContext('2d');
+    const revenuePieChart = new Chart(revenuePieCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['اتاق‌ها', 'خدمات اضافه', 'رستوران', 'سایر'],
+            datasets: [{
+                data: [78, 14, 5, 3],
+                backgroundColor: [
+                    'rgba(59, 130, 246, 0.7)',
+                    'rgba(16, 185, 129, 0.7)',
+                    'rgba(249, 115, 22, 0.7)',
+                    'rgba(156, 163, 175, 0.7)'
+                ],
+                borderColor: [
+                    'rgb(59, 130, 246)',
+                    'rgb(16, 185, 129)',
+                    'rgb(249, 115, 22)',
+                    'rgb(156, 163, 175)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'right',
+                    rtl: true
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.raw || 0;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = Math.round((value / total) * 100);
+                            return `${label}: ${percentage}% (${new Intl.NumberFormat('fa-IR').format(value * 1000000)} تومان)`;
+                        }
                     }
                 }
             }
-        });
+        }
+    });
 
-        // Revenue by Source Chart
-        const sourceCtx = document.getElementById('revenueBySourceChart').getContext('2d');
-        const sourceChart = new Chart(sourceCtx, {
-            type: 'pie',
-            data: {
-                labels: ['اتاق', 'رستوران', 'سایر خدمات'],
-                datasets: [{
-                    data: [3650, 750, 349],
-                    backgroundColor: [
-                        '#4361ee',
-                        '#4bb543',
-                        '#ff3333'
-                    ]
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                    },
-                    title: {
-                        display: true,
-                        text: 'درآمد بر اساس منبع (میلیون تومان)'
-                    }
-                }
-            }
-        });
+    // Generate report button
+    document.getElementById('generate-revenue-report').addEventListener('click', function() {
+        // In a real app, this would fetch data based on filters
+        alert('گزارش درآمد برای بازه انتخابی تولید شد');
+    });
+
+    // Print report button
+    document.getElementById('print-revenue-report').addEventListener('click', function() {
+        window.print();
+    });
+
+    // Export report button
+    document.getElementById('export-revenue-report').addEventListener('click', function() {
+        alert('خروجی Excel در حال دانلود است...');
     });
 </script>
-
-<style>
-    .filter-card {
-        background-color: #f8f9fa;
-        border: 1px solid #dee2e6;
-        border-radius: 8px;
-    }
-    
-    .chart-container {
-        position: relative;
-    }
-    
-    .table tfoot th {
-        font-weight: bold;
-    }
-</style>
 {% endblock %}

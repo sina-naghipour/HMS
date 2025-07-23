@@ -1,60 +1,147 @@
-{% extends "admin/base.html" %}
+{% extends 'admin/base.html' %}
 
-{% block title %}مدیریت اتاق‌ها{% endblock %}
-{% block page_title %}لیست اتاق‌ها{% endblock %}
+{% block title %}لیست اتاق‌ها{% endblock %}
 
 {% block breadcrumb %}
-{{ block.super }}
-<li class="breadcrumb-item active">لیست اتاق‌ها</li>
+<li aria-current="page">
+    <div class="flex items-center">
+        <i class="ti ti-chevron-left text-gray-400 mx-1"></i>
+        <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">مدیریت اتاق‌ها</span>
+    </div>
+</li>
+<li aria-current="page">
+    <div class="flex items-center">
+        <i class="ti ti-chevron-left text-gray-400 mx-1"></i>
+        <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">لیست اتاق‌ها</span>
+    </div>
+</li>
 {% endblock %}
 
 {% block content %}
-<div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <h5>همه اتاق‌ها</h5>
-        <a href="{% url 'accounts:dashboard' %}" class="btn btn-primary">
-            <i class="fas fa-plus me-2"></i>اتاق جدید
+<div class="space-y-6">
+    <div class="flex justify-between items-center">
+        <h1 class="text-2xl font-bold">لیست اتاق‌ها</h1>
+        <a href="{% url 'rooms:create' %}"
+            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center space-x-1 space-x-reverse">
+            <i class="ti ti-plus"></i>
+            <span>اتاق جدید</span>
         </a>
     </div>
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead>
+
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+        <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+            <div class="flex items-center space-x-4 space-x-reverse">
+                <div class="relative">
+                    <input type="text" placeholder="جستجوی اتاق..."
+                        class="pr-10 pl-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent">
+                    <i class="ti ti-search absolute right-3 top-2.5 text-gray-400"></i>
+                </div>
+                <select class="border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent px-3 py-2">
+                    <option value="">همه نوع اتاق‌ها</option>
+                    {% for room_type in room_types %}
+                    <option value="{{ room_type.id }}">{{ room_type.name }}</option>
+                    {% endfor %}
+                </select>
+                <select class="border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent px-3 py-2">
+                    <option value="">همه وضعیت‌ها</option>
+                    <option value="available">خالی</option>
+                    <option value="occupied">اشغال شده</option>
+                    <option value="maintenance">در تعمیرات</option>
+                    <option value="reserved">رزرو شده</option>
+                </select>
+            </div>
+            <button class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+                <i class="ti ti-download"></i>
+            </button>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 data-table">
+                <thead class="bg-gray-50 dark:bg-gray-800">
                     <tr>
-                        <th>شماره اتاق</th>
-                        <th>نوع اتاق</th>
-                        <th>ظرفیت</th>
-                        <th>قیمت شبانه</th>
-                        <th>وضعیت</th>
-                        <th>عملیات</th>
+                        <th class="px-4 py-3 text-right">شماره اتاق</th>
+                        <th class="px-4 py-3 text-right">نوع</th>
+                        <th class="px-4 py-3 text-right">طبقه</th>
+                        <th class="px-4 py-3 text-right">ظرفیت</th>
+                        <th class="px-4 py-3 text-right">امکانات</th>
+                        <th class="px-4 py-3 text-right">قیمت (شبانه)</th>
+                        <th class="px-4 py-3 text-right">وضعیت</th>
+                        <th class="px-4 py-3 text-right">عملیات</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                     {% for room in rooms %}
                     <tr>
-                        <td>{{ room.number }}</td>
-                        <td>{{ room.type.name }}</td>
-                        <td>{{ room.type.capacity }} نفر</td>
-                        <td>{{ room.type.price }} تومان</td>
-                        <td>
-                            {% if room.is_available %}
-                            <span class="badge bg-success">آزاد</span>
-                            {% else %}
-                            <span class="badge bg-danger">اشغال</span>
+                        <td class="px-4 py-3 font-medium">{{ room.number }}</td>
+                        <td class="px-4 py-3">
+                            <div class="flex items-center space-x-2 space-x-reverse">
+                                <span>{{ room.room_type.name }}</span>
+                            </div>
+                        </td>
+                        <td class="px-4 py-3">
+                            {{ room.floor }}
+                        </td>
+                        <td class="px-4 py-3">
+                            <div class="flex items-center space-x-1 space-x-reverse">
+                                <i class="ti ti-users"></i>
+                                <span>{{ room.capacity }} نفر</span>
+                            </div>
+                        </td>
+                        <td class="px-4 py-3">
+                            <div class="flex flex-wrap gap-1 max-w-xs">
+                                {% for amenity in room.amenities.all %}
+                                <span
+                                    class="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded flex items-center space-x-1 space-x-reverse">
+                                    <i class="{{ amenity.icon }}"></i>
+                                    <span>{{ amenity.name }}</span>
+                                </span>
+                                {% endfor %}
+                            </div>
+                        </td>
+                        <td class="px-4 py-3">{{ room.price|floatformat:"0" }} تومان</td>
+                        <td class="px-4 py-3">
+                            {% if room.status == 'available' %}
+                            <span
+                                class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-full text-xs">خالی</span>
+                            {% elif room.status == 'occupied' %}
+                            <span
+                                class="px-2 py-1 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 rounded-full text-xs">اشغال
+                                شده</span>
+                            {% elif room.status == 'maintenance' %}
+                            <span
+                                class="px-2 py-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 rounded-full text-xs">در
+                                تعمیرات</span>
+                            {% elif room.status == 'reserved' %}
+                            <span
+                                class="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-xs">رزرو
+                                شده</span>
                             {% endif %}
                         </td>
-                        <td>
-                            <a href="{% url 'accounts:dashboard' %}" class="btn btn-sm btn-outline-primary">
-                                <i class="fas fa-eye"></i>
-                            </a>
-                            <a href="{% url 'accounts:dashboard' %}" class="btn btn-sm btn-outline-warning">
-                                <i class="fas fa-edit"></i>
-                            </a>
+                        <td class="px-4 py-3">
+                            <div class="flex items-center space-x-2 space-x-reverse">
+                                <a href="{% url 'rooms:detail' room.number %}"
+                                    class="text-blue-600 hover:text-blue-800 dark:hover:text-blue-400" title="مشاهده">
+                                    <i class="ti ti-eye"></i>
+                                </a>
+                                <a href="{% url 'rooms:edit' room.number %}"
+                                    class="text-gray-600 hover:text-gray-800 dark:hover:text-gray-400" title="ویرایش">
+                                    <i class="ti ti-edit"></i>
+                                </a>
+                                <form method="post" action="{% url 'rooms:delete' room.number %}" class="inline">
+                                    {% csrf_token %}
+                                    <button type="submit"
+                                        class="text-red-600 hover:text-red-800 dark:hover:text-red-400"
+                                        onclick="return confirm('آیا از حذف این اتاق مطمئن هستید؟')">
+                                        <i class="ti ti-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="6" class="text-center">هیچ اتاقی یافت نشد</td>
+                        <td colspan="8" class="px-4 py-3 text-center text-gray-500 dark:text-gray-400">هیچ اتاقی یافت
+                            نشد</td>
                     </tr>
                     {% endfor %}
                 </tbody>

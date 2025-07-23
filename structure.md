@@ -38,3 +38,7 @@ templates/
 │       ├── general.html         # General settings
 │       ├── payment.html         # Payment settings
 │       └── email.html           # Email settings
+├── registration/
+│   ├── login.html               # Login page
+│   └── register.html            # Register page
+└── base.html                    # Main base template
