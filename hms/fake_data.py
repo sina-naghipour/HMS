@@ -13,6 +13,10 @@ sys.path.append('D:/codes/Hotel-HMS/HMS/hms')  # Adjust this path as needed
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'hms.settings')
 django.setup()
 
+
+
+
+
 # Import your models
 from accounts.models import CustomUser
 from guests.models import Guest
