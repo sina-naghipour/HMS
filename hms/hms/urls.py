@@ -27,4 +27,6 @@ urlpatterns = [
     path('services/', include('services.urls', namespace='services')),
     path('settigns/', include('settings.urls', namespace='settings')),
     path('bookings/', include('bookings.urls', namespace='bookings')),
+    path('api/v1/', include('api.urls')),
+
 ]
