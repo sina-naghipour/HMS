@@ -39,3 +39,12 @@ POST /api/v1/guests/ - Create guest
 GET /api/v1/guests/{id}/ - Get guest details
 PUT /api/v1/guests/{id}/ - Update guest
 DELETE /api/v1/guests/{id}/ - Delete guest
+
+Reports
+
+/api/reports/occupancy/ – hotel occupancy stats
+/api/reports/bookings/ – bookings stats
+/api/reports/guests/ – guest stats
+/api/reports/staff/ – staff activity
+Settings
+/api/settings/ – get and update global hotel settings

@@ -8,14 +8,17 @@ from .views import (
     BookingViewSet, BookingCalendarEventsView, GuestViewSet,
     available_rooms, soft_delete_booking, restore_booking
 )
+from reports.views import ReportsViewSet
+from settings.views import SettingsViewSet
 
-# Create router for ViewSets
 router = DefaultRouter()
 router.register(r'rooms', RoomViewSet)
 router.register(r'room-types', RoomTypeViewSet)
 router.register(r'amenities', AmenityViewSet)
 router.register(r'bookings', BookingViewSet)
 router.register(r'guests', GuestViewSet)
+router.register(r'reports', ReportsViewSet, basename='reports')
+router.register(r'settings', SettingsViewSet, basename='settings')
 
 app_name = 'api'
 
@@ -26,18 +29,17 @@ urlpatterns = [
     path('auth/logout/', LogoutView.as_view(), name='logout'),
     path('auth/profile/', ProfileView.as_view(), name='profile'),
     path('auth/token/', obtain_auth_token, name='api_token_auth'),
-    
+
     # Dashboard endpoints
     path('dashboard/stats/', DashboardStatsView.as_view(), name='dashboard_stats'),
-    
+
     # Calendar endpoints
     path('bookings/calendar/events/', BookingCalendarEventsView.as_view(), name='calendar_events'),
-    
+
     # Utility endpoints
     path('rooms/available/', available_rooms, name='available_rooms'),
     path('bookings/<int:pk>/soft-delete/', soft_delete_booking, name='soft_delete_booking'),
     path('bookings/<int:pk>/restore/', restore_booking, name='restore_booking'),
-    
-    # Include router URLs
+
     path('', include(router.urls)),
 ]

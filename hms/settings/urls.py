@@ -6,4 +6,5 @@ urlpatterns = [
     path('general/', General.as_view(), name='general'),
     path('payment/', Payment.as_view(), name='payment'),
     path('email/', Email.as_view(), name='email'),
+
 ]
